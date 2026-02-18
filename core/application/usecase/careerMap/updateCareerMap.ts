@@ -1,0 +1,48 @@
+import { CareerMap } from "@/core/domain"
+import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
+import { z } from "zod"
+import { Executor } from "../../executor"
+import { UpdateCareerMapCommand, UpdateCareerMapCommandParametersSchema } from "../../service/command"
+import { FindCareerMapQuery } from "../../service/query"
+
+const UpdateCareerMapParametersSchema = UpdateCareerMapCommandParametersSchema
+
+export type UpdateCareerMapParametersInput = z.input<typeof UpdateCareerMapParametersSchema>
+
+export type UpdateCareerMapParameters = z.infer<typeof UpdateCareerMapParametersSchema>
+
+export type UpdateCareerMap = (
+  input: UpdateCareerMapParametersInput,
+  executor: Executor
+) => Promise<AppResult<CareerMap>>
+
+export type MakeUpdateCareerMapDependencies = {
+  updateCareerMapCommand: UpdateCareerMapCommand
+  findCareerMapQuery: FindCareerMapQuery
+}
+
+export function makeUpdateCareerMap({
+  updateCareerMapCommand,
+  findCareerMapQuery,
+}: MakeUpdateCareerMapDependencies): UpdateCareerMap {
+  return async (input, executor) => {
+    const validation = UpdateCareerMapParametersSchema.safeParse(input)
+    if (!validation.success) return failAsInvalidParametersError(validation.error)
+
+    if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
+
+    const parameters = validation.data
+
+    const findCareerMapResult = await findCareerMapQuery({ id: parameters.id })
+    if (!findCareerMapResult.success) return findCareerMapResult
+
+    const careerMap = findCareerMapResult.data
+    if (!careerMap) return failAsNotFoundError("Career map is not found")
+
+    if (careerMap.userId !== executor.user.id) {
+      return failAsForbiddenError("Forbidden")
+    }
+
+    return await updateCareerMapCommand(parameters)
+  }
+}
