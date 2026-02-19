@@ -1,6 +1,8 @@
-import { PagedCareerEvents } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { PagedCareerEvents } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
 import { FindCareerMapQuery, ListCareerEventsByCareerMapIdQuery, ListCareerEventsByCareerMapIdQueryParametersSchema } from "../../service/query"
 
@@ -26,7 +28,7 @@ export function makeListCareerEventsByCareerMapId({
 }: MakeListCareerEventsByCareerMapIdDependencies): ListCareerEventsByCareerMapId {
   return async (input, executor) => {
     const validation = ListCareerEventsByCareerMapIdParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 

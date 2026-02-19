@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
+
 import { createSupabaseServer } from '@/infrastructure/server/supabase/client'
 
 export async function GET(request: NextRequest) {

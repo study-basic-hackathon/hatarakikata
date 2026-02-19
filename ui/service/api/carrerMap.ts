@@ -1,6 +1,7 @@
-import type { CareerMap, PagedCareerMaps } from '@/core/domain'
 import type { GetCareerMapParametersInput } from '@/core/application/usecase/careerMap/getCareerMap'
 import type { UpdateCareerMapParametersInput } from '@/core/application/usecase/careerMap/updateCareerMap'
+import type { CareerMap, PagedCareerMaps } from '@/core/domain'
+
 import { apiFetch } from './client'
 
 export function listCareerMapsByUserId(input: { userId: string }): Promise<PagedCareerMaps> {
@@ -25,4 +26,21 @@ export function updateCareerMap(input: UpdateCareerMapParametersInput): Promise<
     method: 'PUT',
     body: JSON.stringify(body),
   })
+}
+
+export type SimilarCareerMap = {
+  id: string
+  userId: string
+  score: number
+  overlapTags: { id: string; name: string }[]
+}
+
+export type SimilarCareerMapsResponse = {
+  items: SimilarCareerMap[]
+  count: number
+}
+
+export function listSimilarCareerMaps(input: { careerMapId: string; limit?: number }): Promise<SimilarCareerMapsResponse> {
+  const limit = input.limit ?? 10
+  return apiFetch<SimilarCareerMapsResponse>(`/api/career-maps/${input.careerMapId}/similar?limit=${limit}`)
 }

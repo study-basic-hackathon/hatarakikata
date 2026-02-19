@@ -1,5 +1,6 @@
 import type { CareerMap } from "@/core/domain/entity/careerMap"
-import type { CareerMapRow } from "@/infrastructure/types"
+
+import type { CareerMapRow } from "../schemas"
 
 export function careerMapRowToEntity(row: CareerMapRow): CareerMap {
   return {

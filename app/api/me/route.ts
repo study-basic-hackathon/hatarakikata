@@ -1,9 +1,10 @@
 import { NextRequest } from 'next/server'
+
+import { toResponse } from '@/api/lib/response'
 import { getExecutor } from '@/api/service/auth'
 import { updateUser, withdraw } from '@/api/usecase'
-import { toResponse } from '@/api/lib/response'
-import { findUserQuery } from '@/infrastructure/server/supabase/query'
 import { failAsNotFoundError } from '@/core/util/appResult'
+import { findUserQuery } from '@/infrastructure/server/supabase/query'
 
 export async function GET() {
   const executor = await getExecutor()

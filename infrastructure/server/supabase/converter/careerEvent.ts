@@ -1,5 +1,6 @@
 import type { CareerEvent } from "@/core/domain/entity/careerEvent"
-import type { CareerEventWithTagsRow } from "@/infrastructure/types"
+
+import type { CareerEventWithTagsRow } from "../schemas"
 
 export function careerEventRowToEntity(row: CareerEventWithTagsRow): CareerEvent {
   return {

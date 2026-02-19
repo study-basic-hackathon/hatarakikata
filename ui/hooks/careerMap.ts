@@ -1,17 +1,20 @@
 'use client'
 
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation,useQuery } from '@tanstack/react-query'
+
 import type { UpdateCareerMapParametersInput } from '@/core/application/usecase/careerMap/updateCareerMap'
 import {
-  listCareerMapsByUserId,
-  listMyCareerMaps,
   createMyCareerMap,
   getCareerMap,
+  listCareerMapsByUserId,
+  listMyCareerMaps,
+  listSimilarCareerMaps,
   updateCareerMap,
 } from '@/ui/service/api'
 
 const CAREER_MAPS_QUERY_KEY = ['careerMaps'] as const
 const CAREER_MAP_QUERY_KEY = ['careerMap'] as const
+const SIMILAR_CAREER_MAPS_QUERY_KEY = ['similarCareerMaps'] as const
 
 export function useCareerMapsByUserIdQuery(userId: string | undefined) {
   return useQuery({
@@ -45,5 +48,13 @@ export function useCareerMapQuery(id: string | undefined) {
 export function useUpdateCareerMapMutation() {
   return useMutation({
     mutationFn: (input: UpdateCareerMapParametersInput) => updateCareerMap(input),
+  })
+}
+
+export function useSimilarCareerMapsQuery(careerMapId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: [...SIMILAR_CAREER_MAPS_QUERY_KEY, careerMapId],
+    queryFn: () => listSimilarCareerMaps({ careerMapId: careerMapId! }),
+    enabled: !!careerMapId && enabled,
   })
 }

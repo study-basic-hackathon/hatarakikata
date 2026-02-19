@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
+
 import type { CareerEventPayload } from "@/core/domain"
 import { useCareerMapEventTagsQuery } from "@/ui/hooks/careerMapEventTag"
+
 import { useCarrerMapEditorContext } from "../hooks/CarrerMapEditorContext"
-import { toMonth, fromMonth } from "./utils"
+import { fromMonth,toMonth } from "./utils"
 
 type FormValues = {
   name: string
@@ -11,6 +13,7 @@ type FormValues = {
   endMonth: string
   strength: number
   description: string
+  tags: string[]
 }
 
 export function useCareerMapEventDialogForm() {
@@ -34,12 +37,15 @@ export function useCareerMapEventDialogForm() {
       endMonth: "",
       strength: 3,
       description: "",
+      tags: [] as string[],
     },
   })
 
-  const { register, handleSubmit, reset } = form
+  const { register, handleSubmit, reset, watch, setValue } = form
 
-  const [tags, setTags] = useState<string[]>([])
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const tags = watch("tags")
+  const setTags = (newTags: string[]) => setValue("tags", newTags)
 
   const tagsQuery = useCareerMapEventTagsQuery()
   const availableTags = tagsQuery.data?.items ?? []
@@ -53,8 +59,8 @@ export function useCareerMapEventDialogForm() {
         endMonth: toMonth(event.endDate),
         strength: event.strength ?? 3,
         description: event.description ?? "",
+        tags: event.tags ?? [],
       })
-      setTags(event.tags ?? [])
     } else if (open && mode === "create") {
       const prefill = dialogState.mode === "create" ? dialogState.prefill : undefined
       reset({
@@ -63,8 +69,8 @@ export function useCareerMapEventDialogForm() {
         endMonth: toMonth(prefill?.endDate ?? ""),
         strength: 3,
         description: "",
+        tags: [],
       })
-      setTags([])
     }
   }, [open, mode, event, reset, dialogState])
 

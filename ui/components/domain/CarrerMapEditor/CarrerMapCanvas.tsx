@@ -1,39 +1,65 @@
 "use client"
 
-import { useCallback, useMemo, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
+
 import { useCareerMapEventTagsQuery } from "@/ui/hooks/careerMapEventTag"
-import { useCarrerMapEditorContext } from "./hooks/CarrerMapEditorContext"
-import { eventToRect, computeCanvasWidth, computeCanvasHeight, xToDate, yToRow } from "./utils/timelineMapping"
-import { computeVisibleRows } from "./utils/timelineMapping"
-import CarrerMapCanvasRuler from "./CarrerMapCanvasRuler"
+
+import CareerMapEventCard from "./CareerMapEventCard"
 import CarrerMapCanvasGrid from "./CarrerMapCanvasGrid"
 import CarrerMapCanvasItem from "./CarrerMapCanvasItem"
-import CareerMapEventCard from "./CareerMapEventCard"
+import CarrerMapCanvasRuler from "./CarrerMapCanvasRuler"
+import { useCarrerMapEditorContext } from "./hooks/CarrerMapEditorContext"
 import { useDragInteraction } from "./hooks/useDragInteraction"
 import { usePanInteraction } from "./hooks/usePanInteraction"
+import { computeCanvasWidth, eventToRect, xToDate, yToRow } from "./utils/timelineMapping"
 
 export default function CarrerMapCanvas() {
-  const { events, careerMap, timelineConfig: config, scale, extraRows, updateEvent, openEditDialog, openCreateDialog, addRow } = useCarrerMapEditorContext()
+  const { events, careerMap, timelineConfig: config, scale, updateEvent, openEditDialog, openCreateDialog, selectedEventIds, selectEvent, clearSelection, deleteSelectedEvents } = useCarrerMapEditorContext()
   const tagsQuery = useCareerMapEventTagsQuery()
   const tagMap = useMemo(
     () => new Map((tagsQuery.data?.items ?? []).map((t) => [t.id, t.name])),
     [tagsQuery.data],
   )
-  const visibleRows = computeVisibleRows(events, extraRows)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
   const { dragState, previewRect, handlePointerDown: handleDragPointerDown, handlePointerMove: handleDragPointerMove, handlePointerUp: handleDragPointerUp } =
-    useDragInteraction(config, updateEvent, visibleRows)
+    useDragInteraction(config, updateEvent)
   const { handlePointerDown: handlePanPointerDown, handlePointerMove: handlePanPointerMove, handlePointerUp: handlePanPointerUp } =
     usePanInteraction(scrollRef, canvasRef, !!dragState)
 
   const canvasWidth = computeCanvasWidth(config)
+  const headerPx = config.headerHeightInUnits * config.unit
   const rowHeight = config.rowHeightInUnits * config.unit
-  const addRowAreaHeight = rowHeight
-  const canvasHeight = computeCanvasHeight(config, visibleRows.length) + addRowAreaHeight
 
+  // Canvas height: enough rows to fill viewport + accommodate all events
+  const maxEventBottom = useMemo(() => {
+    let max = 0
+    for (const event of events) {
+      const rect = eventToRect(event, config)
+      const bottom = rect.y + rect.height
+      if (bottom > max) max = bottom
+    }
+    return max
+  }, [events, config])
+
+  const minContentHeight = headerPx + 600
+  const canvasHeight = Math.max(minContentHeight, maxEventBottom + rowHeight * 4)
+
+  // Delete key handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+        if (selectedEventIds.size === 0) return
+        e.preventDefault()
+        deleteSelectedEvents()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [selectedEventIds, deleteSelectedEvents])
 
   const handleCanvasPointerDown = useCallback((e: React.PointerEvent) => {
     handlePanPointerDown(e)
@@ -51,7 +77,9 @@ export default function CarrerMapCanvas() {
 
     if (wasPanning || wasDraggingEvent) return
 
-    // Click on canvas background → create event
+    // Click on canvas background → clear selection & create event
+    clearSelection()
+
     const canvasEl = canvasRef.current
     if (!canvasEl) return
 
@@ -59,26 +87,22 @@ export default function CarrerMapCanvas() {
     const canvasX = e.clientX - rect.left
     const canvasY = e.clientY - rect.top
 
-    const headerPx = config.headerHeightInUnits * config.unit
     if (canvasY <= headerPx) return
 
-    const maxRowY = headerPx + visibleRows.length * rowHeight
-    if (canvasY >= maxRowY) return
-
-    const dataRow = yToRow(canvasY, config, visibleRows)
+    const row = yToRow(canvasY, config)
     const startDate = xToDate(canvasX, config)
     const start = new Date(startDate)
     const end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate())
     const endDate = end.toISOString().split("T")[0]
-    openCreateDialog({ row: dataRow, startDate, endDate })
-  }, [dragState, handleDragPointerUp, handlePanPointerUp, config, visibleRows, rowHeight, openCreateDialog])
+    openCreateDialog({ row, startDate, endDate })
+  }, [dragState, handleDragPointerUp, handlePanPointerUp, clearSelection, config, headerPx, openCreateDialog])
 
   return (
     <div ref={scrollRef} className="w-full h-full overflow-auto relative">
       <div
         ref={canvasRef}
         className="cursor-grab"
-        style={{ width: canvasWidth, height: canvasHeight, position: "relative" }}
+        style={{ width: canvasWidth, minHeight: "100%", height: canvasHeight, position: "relative" }}
         onPointerDown={handleCanvasPointerDown}
         onPointerMove={handleCanvasPointerMove}
         onPointerUp={handleCanvasPointerUp}
@@ -93,13 +117,12 @@ export default function CarrerMapCanvas() {
           startDate={careerMap!.startDate!}
           endDate={careerMap!.endDate}
           scale={scale}
-          visibleRows={visibleRows}
-          onAddRow={addRow}
+          canvasHeight={canvasHeight}
         />
 
         {/* Event cards */}
         {events.map((event) => {
-          const rect = eventToRect(event, config, visibleRows)
+          const rect = eventToRect(event, config)
           const isDragging = dragState?.eventId === event.id
           const displayRect = isDragging && previewRect ? previewRect : rect
           return (
@@ -114,6 +137,8 @@ export default function CarrerMapCanvas() {
                 event={event}
                 tagNames={(event.tags ?? []).map((id) => tagMap.get(id)).filter((n): n is string => !!n)}
                 isDragging={isDragging}
+                isSelected={selectedEventIds.has(event.id)}
+                onSelect={(e: React.MouseEvent) => selectEvent(event.id, e.shiftKey)}
                 onDragStart={(e, mode) => handleDragPointerDown(e, mode, event, rect)}
                 onEdit={() => openEditDialog(event)}
               />

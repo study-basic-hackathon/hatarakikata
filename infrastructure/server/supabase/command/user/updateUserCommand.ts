@@ -1,19 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UpdateUserCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { userRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeUpdateUserCommand(supabase: SupabaseClient): UpdateUserCommand {
-  return async ({ id, ...rest }) => {
-    const { data, error } = await supabase
-      .from('users')
-      .update(rest)
-      .eq('id', id)
-      .select('id, name')
-      .single()
+import { createSupabaseServer } from '../../client'
+import { userRowToEntity } from '../../converter'
 
-    if (error) return failAsExternalServiceError(error.message)
+export const updateUserCommand: UpdateUserCommand = async ({ id, ...rest }) => {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('users')
+    .update(rest)
+    .eq('id', id)
+    .select('id, name')
+    .single()
 
-    return succeed(userRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(userRowToEntity(data))
 }

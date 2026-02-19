@@ -1,9 +1,11 @@
-import { User } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { User } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
-import { DeleteUserCommand, DeleteUserCommandParametersSchema, DeleteCareerMapCommand, DeleteCareerEventCommand } from "../../service/command"
-import { FindUserQuery, ListCareerMapByUserIdQuery, ListCareerEventsByCareerMapIdQuery } from "../../service/query"
+import { DeleteCareerEventCommand,DeleteCareerMapCommand, DeleteUserCommand, DeleteUserCommandParametersSchema } from "../../service/command"
+import { FindUserQuery, ListCareerEventsByCareerMapIdQuery,ListCareerMapByUserIdQuery } from "../../service/query"
 
 const WithdrawParametersSchema = DeleteUserCommandParametersSchema
 
@@ -35,7 +37,7 @@ export function makeWithdraw({
 }: MakeWithdrawDependencies): Withdraw {
   return async (input, executor) => {
     const validation = WithdrawParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 

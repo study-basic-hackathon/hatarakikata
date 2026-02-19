@@ -1,7 +1,8 @@
 "use client"
 
-import { tv } from "tailwind-variants"
 import { RiAddLine, RiSearchLine, RiSparklingLine } from "react-icons/ri"
+import { tv } from "tailwind-variants"
+
 import { useCarrerMapEditorContext } from "./hooks/CarrerMapEditorContext"
 
 const actionButton = tv({
@@ -19,21 +20,24 @@ const actionButton = tv({
 })
 
 export default function CarrerMapCanvasActions() {
-  const { openCreateDialog } = useCarrerMapEditorContext()
+  const { openCreateDialog, openGenerateDialog, openSearchDialog } = useCarrerMapEditorContext()
 
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 bg-white rounded-full shadow-lg p-1.5">
-      <button type="button" disabled className={actionButton()}>
+      <button type="button" className={actionButton()} onClick={openSearchDialog}>
         <RiSearchLine className="text-xl" />
       </button>
-      <button type="button" disabled className={actionButton()}>
+      <button
+        type="button"
+        className={actionButton()}
+        onClick={openGenerateDialog}
+      >
         <RiSparklingLine className="text-xl" />
       </button>
       <button
         type="button"
         className={actionButton({ variant: "primary" })}
-        onClick={() => openCreateDialog()}
-      >
+        onClick={() => openCreateDialog()}>
         <RiAddLine className="text-xl" />
       </button>
     </div>

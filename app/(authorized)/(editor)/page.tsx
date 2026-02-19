@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useMyCareerMapsQuery, useCreateMyCareerMapMutation } from '@/ui/hooks/careerMap'
+
+import Spinner from '@/ui/components/basic/Spinner'
 import CareerMapEditor from '@/ui/components/domain/CarrerMapEditor'
+import { useCreateMyCareerMapMutation,useMyCareerMapsQuery } from '@/ui/hooks/careerMap'
 
 export default function HomePage() {
   const { data: careerMaps, refetch: refetchMaps } = useMyCareerMapsQuery()
@@ -21,7 +23,7 @@ export default function HomePage() {
   }, [hasNoMaps, createMapMutation.isPending, createMapMutation.isSuccess, createMapMutation, refetchMaps])
 
   if (!careerMapId) {
-    return <div className="flex items-center justify-center w-full h-full text-foreground/50">読み込み中...</div>
+    return <div className="flex items-center justify-center w-full h-full"><Spinner /></div>
   }
 
   return <CareerMapEditor careerMapId={careerMapId} />

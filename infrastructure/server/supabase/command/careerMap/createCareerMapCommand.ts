@@ -1,21 +1,21 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { CreateCareerMapCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerMapRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeCreateCareerMapCommand(supabase: SupabaseClient): CreateCareerMapCommand {
-  return async ({ userId, startDate }) => {
-    const insertData: Record<string, unknown> = { user_id: userId }
-    if (startDate !== undefined && startDate !== null) insertData.start_date = startDate
+import { createSupabaseServer } from '../../client'
+import { careerMapRowToEntity } from '../../converter'
 
-    const { data, error } = await supabase
-      .from('career_maps')
-      .insert(insertData)
-      .select('id, user_id, start_date')
-      .single()
+export const createCareerMapCommand: CreateCareerMapCommand = async ({ userId, startDate }) => {
+  const supabase = await createSupabaseServer()
+  const insertData: Record<string, unknown> = { user_id: userId }
+  if (startDate !== undefined && startDate !== null) insertData.start_date = startDate
 
-    if (error) return failAsExternalServiceError(error.message)
+  const { data, error } = await supabase
+    .from('career_maps')
+    .insert(insertData)
+    .select('id, user_id, start_date')
+    .single()
 
-    return succeed(careerMapRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(careerMapRowToEntity(data))
 }

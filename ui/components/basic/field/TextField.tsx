@@ -1,9 +1,10 @@
 "use client";
 
-import { useFormContext, RegisterOptions, FieldValues, Path } from "react-hook-form";
-import Input from "../input/Input";
 import { InputHTMLAttributes } from "react";
+import { FieldValues, Path,RegisterOptions, useFormContext } from "react-hook-form";
 import { tv } from "tailwind-variants";
+
+import Input from "../input/Input";
 
 const textField = tv({
   base: "space-y-2",

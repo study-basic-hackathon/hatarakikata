@@ -12,9 +12,6 @@ export const DEFAULT_TIMELINE_CONFIG: TimelineConfig = {
   maxStrength: 5,
 }
 
-export const MIN_ROW_COUNT = 4
-
-
 // スケール定義 — 画面幅1200pxを基準
 // スケール1が最もズームイン(1年表示)、スケール6が最もズームアウト(40年表示)
 //

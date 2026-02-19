@@ -1,22 +1,22 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ListCareerMapEventTagsQuery } from '@/core/application/service/query'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerMapEventTagRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeListCareerMapEventTagsQuery(supabase: SupabaseClient): ListCareerMapEventTagsQuery {
-  return async () => {
-    const { data, error, count } = await supabase
-      .from('career_map_event_tags')
-      .select('id, name', { count: 'exact' })
-      .order('name')
+import { createSupabaseServer } from '../../client'
+import { careerMapEventTagRowToEntity } from '../../converter'
 
-    if (error) return failAsExternalServiceError(error.message)
+export const listCareerMapEventTagsQuery: ListCareerMapEventTagsQuery = async () => {
+  const supabase = await createSupabaseServer()
+  const { data, error, count } = await supabase
+    .from('career_map_event_tags')
+    .select('id, name', { count: 'exact' })
+    .order('name')
 
-    return succeed({
-      items: (data ?? []).map(careerMapEventTagRowToEntity),
-      count: count ?? 0,
-      offset: 0,
-      limit: (data ?? []).length,
-    })
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed({
+    items: (data ?? []).map(careerMapEventTagRowToEntity),
+    count: count ?? 0,
+    offset: 0,
+    limit: (data ?? []).length,
+  })
 }

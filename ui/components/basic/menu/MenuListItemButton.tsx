@@ -1,6 +1,7 @@
 import { RiArrowRightSLine } from "react-icons/ri"
-import { MenuListItemProps } from "./types"
+
 import { menuListItem } from "./styles"
+import { MenuListItemProps } from "./types"
 
 export type MenuListItemButtonProps = MenuListItemProps & {
   onClick: () => void

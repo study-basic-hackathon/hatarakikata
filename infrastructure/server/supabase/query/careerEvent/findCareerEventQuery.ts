@@ -1,20 +1,20 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { FindCareerEventQuery } from '@/core/application/service/query'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerEventRowToEntity } from '@/infrastructure/converter'
-import type { CareerEventWithTagsRow } from '@/infrastructure/types'
+import { failAsExternalServiceError, succeed } from '@/core/util/appResult'
 
-export function makeFindCareerEventQuery(supabase: SupabaseClient): FindCareerEventQuery {
-  return async ({ id }) => {
-    const { data, error } = await supabase
-      .from('career_events')
-      .select('id, career_map_id, name, start_date, end_date, type, strength, row, description, career_map_event_tag_attachments(career_map_event_tags(id, name))')
-      .eq('id', id)
-      .maybeSingle()
+import { createSupabaseServer } from '../../client'
+import { careerEventRowToEntity } from '../../converter'
+import type { CareerEventWithTagsRow } from '../../schemas'
 
-    if (error) return failAsExternalServiceError(error.message)
-    if (!data) return succeed(null)
+export const findCareerEventQuery: FindCareerEventQuery = async ({ id }) => {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('career_events')
+    .select('id, career_map_id, name, start_date, end_date, strength, row, description, career_map_event_tag_attachments(career_map_event_tags(id, name))')
+    .eq('id', id)
+    .maybeSingle()
 
-    return succeed(careerEventRowToEntity(data as unknown as CareerEventWithTagsRow))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+  if (!data) return succeed(null)
+
+  return succeed(careerEventRowToEntity(data as unknown as CareerEventWithTagsRow))
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import type { AppResult } from '@/core/util/appResult'
 
 export function toResponse<T>(result: AppResult<T>): NextResponse {
@@ -15,6 +16,10 @@ export function toResponse<T>(result: AppResult<T>): NextResponse {
     ExternalServiceError: 502,
   } as const
 
+  if (error.cause) {
+    console.error(error.cause)
+  }
+
   const status = statusMap[error.type]
-  return NextResponse.json({ error: error.message }, { status })
+  return NextResponse.json(error.message, { status })
 }

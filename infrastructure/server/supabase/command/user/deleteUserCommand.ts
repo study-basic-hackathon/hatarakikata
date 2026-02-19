@@ -1,19 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { DeleteUserCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { userRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeDeleteUserCommand(supabase: SupabaseClient): DeleteUserCommand {
-  return async ({ id }) => {
-    const { data, error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', id)
-      .select('id, name')
-      .single()
+import { createSupabaseServer } from '../../client'
+import { userRowToEntity } from '../../converter'
 
-    if (error) return failAsExternalServiceError(error.message)
+export const deleteUserCommand: DeleteUserCommand = async ({ id }) => {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', id)
+    .select('id, name')
+    .single()
 
-    return succeed(userRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(userRowToEntity(data))
 }

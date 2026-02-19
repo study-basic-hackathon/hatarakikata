@@ -1,6 +1,8 @@
 'use client'
 
-import { createContext, useContext, type ReactNode } from 'react'
+import { createContext, type ReactNode,useContext } from 'react'
+
+import Spinner from '@/ui/components/basic/Spinner'
 import { useSessionQuery } from '@/ui/hooks/auth'
 import type { AuthUser } from '@/ui/service/auth'
 
@@ -24,7 +26,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const { data: user, isLoading, isError } = useSessionQuery()
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">読み込み中...</div>
+    return <div className="flex items-center justify-center min-h-screen"><Spinner /></div>
   }
 
   return (

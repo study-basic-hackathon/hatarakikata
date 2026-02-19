@@ -1,12 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { SignOut } from '@/core/application/service/auth'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeSignOut(supabase: SupabaseClient): SignOut {
-  return async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) return failAsExternalServiceError(error.message)
+import { getSupabaseBrowserClient } from '../client'
 
-    return succeed(undefined)
-  }
+export const signOut: SignOut = async () => {
+  const supabase = getSupabaseBrowserClient()
+  const { error } = await supabase.auth.signOut()
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(undefined)
 }

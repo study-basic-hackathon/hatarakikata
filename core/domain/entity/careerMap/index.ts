@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { createPagedItemsSchema } from "@/core/domain/schema"
 
 export const CareerMapKeySchema = z.object({

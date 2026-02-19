@@ -1,6 +1,8 @@
-import { User } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { User } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
 import { UpdateUserCommand, UpdateUserCommandParametersSchema } from "../../service/command"
 import { FindUserQuery } from "../../service/query"
@@ -27,7 +29,7 @@ export function makeUpdateUser({
 }: MakeUpdateUserDependencies): UpdateUser {
   return async (input, executor) => {
     const validation = UpdateUserParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 

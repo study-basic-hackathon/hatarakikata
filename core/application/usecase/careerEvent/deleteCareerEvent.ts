@@ -1,6 +1,8 @@
-import { CareerEvent } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { CareerEvent } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
 import { DeleteCareerEventCommand, DeleteCareerEventCommandParametersSchema } from "../../service/command"
 import { FindCareerEventQuery, FindCareerMapQuery } from "../../service/query"
@@ -29,7 +31,7 @@ export function makeDeleteCareerEvent({
 }: MakeDeleteCareerEventDependencies): DeleteCareerEvent {
   return async (input, executor) => {
     const validation = DeleteCareerEventParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 
@@ -51,6 +53,9 @@ export function makeDeleteCareerEvent({
       return failAsForbiddenError("Forbidden")
     }
 
-    return await deleteCareerEventCommand(parameters)
+    const deleteResult = await deleteCareerEventCommand(parameters)
+    if (!deleteResult.success) return deleteResult
+
+    return succeed(careerEvent)
   }
 }

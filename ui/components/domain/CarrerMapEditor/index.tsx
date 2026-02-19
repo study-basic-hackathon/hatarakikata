@@ -1,23 +1,26 @@
 "use client"
 
 import Spinner from "@/ui/components/basic/Spinner"
-import { useCareerMapQuery, useUpdateCareerMapMutation } from "@/ui/hooks/careerMap"
 import {
   useCareerEventsByCareerMapIdQuery,
   useCreateCareerEventMutation,
-  useUpdateCareerEventMutation,
   useDeleteCareerEventMutation,
+  useUpdateCareerEventMutation,
 } from "@/ui/hooks/careerEvent"
-import { useCarrerMapEditor } from "./hooks/useCarrerMapEditor"
-import { CarrerMapEditorProvider } from "./CarrerMapEditorProvider"
-import CarrerMapEditorContainer from "./CarrerMapEditorContainer"
+import { useCareerMapQuery, useUpdateCareerMapMutation } from "@/ui/hooks/careerMap"
+
+import CareerMapEventDialog from "./CareerMapEventDialog"
+import CareerMapEventGenerateDialog from "./CareerMapEventGenerateDialog"
+import CareerMapSearchDialog from "./CareerMapSearchDialog"
 import CarrerMapCanvas from "./CarrerMapCanvas"
 import CarrerMapCanvasActions from "./CarrerMapCanvasActions"
-import CarrerMapRequestBirthdayDialog from "./CarrerMapRequestBirthdayDialog"
 import CarrerMapCanvasPlaceholder from "./CarrerMapCanvasPlaceholder"
-import CareerMapEventDialog from "./CareerMapEventDialog"
+import CarrerMapEditorContainer from "./CarrerMapEditorContainer"
+import { CarrerMapEditorProvider } from "./CarrerMapEditorProvider"
 import CarrerMapErrorBanner from "./CarrerMapErrorBanner"
+import CarrerMapRequestBirthdayDialog from "./CarrerMapRequestBirthdayDialog"
 import CarrerMapToolBar from "./CarrerMapToolBar"
+import { useCarrerMapEditor } from "./hooks/useCarrerMapEditor"
 
 type CareerMapEditorProps = {
   careerMapId: string
@@ -67,6 +70,8 @@ export default function CarrerMapEditor({ careerMapId }: CareerMapEditorProps) {
         <CarrerMapErrorBanner />
 
         <CareerMapEventDialog />
+        <CareerMapEventGenerateDialog />
+        <CareerMapSearchDialog />
       </CarrerMapEditorContainer>
     </CarrerMapEditorProvider>
   )

@@ -1,6 +1,8 @@
-import { CareerEvent } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError, succeed } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { CareerEvent } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
 import { FindCareerEventQuery, FindCareerEventQueryParametersSchema, FindCareerMapQuery } from "../../service/query"
 
@@ -26,7 +28,7 @@ export function makeGetCareerEvent({
 }: MakeGetCareerEventDependencies): GetCareerEvent {
   return async (input, executor) => {
     const validation = GetCareerEventParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 

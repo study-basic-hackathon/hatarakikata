@@ -1,10 +1,17 @@
-import type { CareerEvent, PagedCareerEvents } from '@/core/domain'
-import type { ListCareerEventsByCareerMapIdParametersInput } from '@/core/application/usecase/careerEvent/listCareerEventsByCareerMapId'
-import type { GetCareerEventParametersInput } from '@/core/application/usecase/careerEvent/getCareerEvent'
 import type { CreateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/createCareerEvent'
-import type { UpdateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/updateCareerEvent'
 import type { DeleteCareerEventParametersInput } from '@/core/application/usecase/careerEvent/deleteCareerEvent'
+import type { GenerateCareerEventsParametersInput } from '@/core/application/usecase/careerEvent/generateCareerEvents'
+import type { GetCareerEventParametersInput } from '@/core/application/usecase/careerEvent/getCareerEvent'
+import type { ListCareerEventsByCareerMapIdParametersInput } from '@/core/application/usecase/careerEvent/listCareerEventsByCareerMapId'
+import type { UpdateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/updateCareerEvent'
+import type { CareerEvent, PagedCareerEvents } from '@/core/domain'
+
 import { apiFetch } from './client'
+
+export type GenerateCareerEventsResponse = {
+  events: CareerEvent[]
+  nextQuestion: { content: string } | null
+}
 
 export function listCareerEventsByCareerMapId(input: ListCareerEventsByCareerMapIdParametersInput): Promise<PagedCareerEvents> {
   return apiFetch<PagedCareerEvents>(`/api/career-maps/${input.careerMapId}/career-events`)
@@ -33,5 +40,15 @@ export function updateCareerEvent(input: UpdateCareerEventParametersInput): Prom
 export function deleteCareerEvent(input: DeleteCareerEventParametersInput): Promise<void> {
   return apiFetch<void>(`/api/career-events/${input.id}`, {
     method: 'DELETE',
+  })
+}
+
+export function generateCareerEvents(
+  input: GenerateCareerEventsParametersInput
+): Promise<GenerateCareerEventsResponse> {
+  const { careerMapId, ...body } = input
+  return apiFetch<GenerateCareerEventsResponse>(`/api/career-maps/${careerMapId}/career-events/generate`, {
+    method: 'POST',
+    body: JSON.stringify(body),
   })
 }

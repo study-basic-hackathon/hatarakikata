@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { AppResult } from '@/core/util/appResult'
 
 export const UpdatePasswordParametersSchema = z.object({

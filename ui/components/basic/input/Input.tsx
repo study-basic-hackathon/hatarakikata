@@ -1,6 +1,6 @@
 "use client";
 
-import { InputHTMLAttributes, forwardRef } from "react";
+import { forwardRef,InputHTMLAttributes } from "react";
 import { tv } from "tailwind-variants";
 
 const input = tv({

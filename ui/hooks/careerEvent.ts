@@ -1,15 +1,18 @@
 'use client'
 
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation,useQuery } from '@tanstack/react-query'
+
 import type { CreateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/createCareerEvent'
-import type { UpdateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/updateCareerEvent'
 import type { DeleteCareerEventParametersInput } from '@/core/application/usecase/careerEvent/deleteCareerEvent'
+import type { GenerateCareerEventsParametersInput } from '@/core/application/usecase/careerEvent/generateCareerEvents'
+import type { UpdateCareerEventParametersInput } from '@/core/application/usecase/careerEvent/updateCareerEvent'
 import {
-  listCareerEventsByCareerMapId,
-  getCareerEvent,
   createCareerEvent,
-  updateCareerEvent,
   deleteCareerEvent,
+  generateCareerEvents,
+  getCareerEvent,
+  listCareerEventsByCareerMapId,
+  updateCareerEvent,
 } from '@/ui/service/api'
 
 const CAREER_EVENTS_QUERY_KEY = ['careerEvents'] as const
@@ -46,5 +49,12 @@ export function useUpdateCareerEventMutation() {
 export function useDeleteCareerEventMutation() {
   return useMutation({
     mutationFn: (input: DeleteCareerEventParametersInput) => deleteCareerEvent(input),
+  })
+}
+
+export function useGenerateCareerEventsMutation() {
+  return useMutation({
+    mutationFn: (input: GenerateCareerEventsParametersInput) =>
+      generateCareerEvents(input),
   })
 }

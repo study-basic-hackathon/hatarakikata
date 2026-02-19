@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react"
-import { buildTimelineConfig, computeCanvasWidth } from "./utils/timelineMapping"
+
 import { SCALE_DISPLAY_CONFIG } from "./utils/constants"
+import { buildTimelineConfig, computeCanvasWidth } from "./utils/timelineMapping"
 
 type Props = {
   startDate: string

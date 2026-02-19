@@ -1,9 +1,11 @@
 "use client"
 
 import type { PointerEvent } from "react"
-import { tv } from "tailwind-variants"
 import { RiEditLine } from "react-icons/ri"
+import { tv } from "tailwind-variants"
+
 import type { CareerEvent } from "@/core/domain"
+
 import type { DragMode } from "./hooks/useDragInteraction"
 
 const HANDLE_SIZE = 8
@@ -14,6 +16,9 @@ const card = tv({
     isDragging: {
       true: "opacity-70 shadow-lg z-50",
     },
+    isSelected: {
+      true: "ring-2 ring-primary-500 border-primary-500",
+    },
   },
 })
 
@@ -21,6 +26,8 @@ type CareerMapEventCardProps = {
   event: CareerEvent
   tagNames: string[]
   isDragging: boolean
+  isSelected: boolean
+  onSelect: (e: React.MouseEvent) => void
   onDragStart: (e: PointerEvent, mode: DragMode) => void
   onEdit: () => void
 }
@@ -29,11 +36,19 @@ export default function CareerMapEventCard({
   event,
   tagNames,
   isDragging,
+  isSelected,
+  onSelect,
   onDragStart,
   onEdit,
 }: CareerMapEventCardProps) {
   return (
-    <div className={card({ isDragging })}>
+    <div
+      className={card({ isDragging, isSelected })}
+      onClick={(e) => {
+        e.stopPropagation()
+        onSelect(e)
+      }}
+    >
       {/* Edit button */}
       <button
         type="button"

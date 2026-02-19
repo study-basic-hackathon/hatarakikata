@@ -1,23 +1,23 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UpdateCareerMapCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerMapRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeUpdateCareerMapCommand(supabase: SupabaseClient): UpdateCareerMapCommand {
-  return async (params) => {
-    const updateData: Record<string, unknown> = {}
-    if (params.userId !== undefined) updateData.user_id = params.userId
-    if (params.startDate !== undefined) updateData.start_date = params.startDate
+import { createSupabaseServer } from '../../client'
+import { careerMapRowToEntity } from '../../converter'
 
-    const { data, error } = await supabase
-      .from('career_maps')
-      .update(updateData)
-      .eq('id', params.id)
-      .select('id, user_id, start_date')
-      .single()
+export const updateCareerMapCommand: UpdateCareerMapCommand = async (params) => {
+  const supabase = await createSupabaseServer()
+  const updateData: Record<string, unknown> = {}
+  if (params.userId !== undefined) updateData.user_id = params.userId
+  if (params.startDate !== undefined) updateData.start_date = params.startDate
 
-    if (error) return failAsExternalServiceError(error.message)
+  const { data, error } = await supabase
+    .from('career_maps')
+    .update(updateData)
+    .eq('id', params.id)
+    .select('id, user_id, start_date')
+    .single()
 
-    return succeed(careerMapRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(careerMapRowToEntity(data))
 }

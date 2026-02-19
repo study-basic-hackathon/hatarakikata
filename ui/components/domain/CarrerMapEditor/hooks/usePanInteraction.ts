@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, type RefObject } from "react"
+import { type RefObject,useCallback, useRef } from "react"
 
 const PAN_THRESHOLD = 3
 

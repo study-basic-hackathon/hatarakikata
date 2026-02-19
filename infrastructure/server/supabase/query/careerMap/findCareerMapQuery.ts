@@ -1,19 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { FindCareerMapQuery } from '@/core/application/service/query'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerMapRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeFindCareerMapQuery(supabase: SupabaseClient): FindCareerMapQuery {
-  return async ({ id }) => {
-    const { data, error } = await supabase
-      .from('career_maps')
-      .select('id, user_id, start_date')
-      .eq('id', id)
-      .maybeSingle()
+import { createSupabaseServer } from '../../client'
+import { careerMapRowToEntity } from '../../converter'
 
-    if (error) return failAsExternalServiceError(error.message)
-    if (!data) return succeed(null)
+export const findCareerMapQuery: FindCareerMapQuery = async ({ id }) => {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('career_maps')
+    .select('id, user_id, start_date')
+    .eq('id', id)
+    .maybeSingle()
 
-    return succeed(careerMapRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+  if (!data) return succeed(null)
+
+  return succeed(careerMapRowToEntity(data))
 }

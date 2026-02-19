@@ -1,6 +1,7 @@
+import { z } from "zod"
+
 import { User, UserKeySchema } from "@/core/domain"
 import { AppResult } from "@/core/util/appResult"
-import { z } from "zod"
 
 export const FindUserQueryParametersSchema = UserKeySchema
 

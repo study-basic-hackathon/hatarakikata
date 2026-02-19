@@ -1,13 +1,8 @@
 import { AppError, ExternalServiceError, ForbiddenError, InternalServerError, InvalidParametersError, NotFoundError } from '@/core/error/appError'
+
 import { AppResult } from './types'
 
 export * from './types'
-
-function toMessage(value: unknown): string {
-  if (value instanceof Error) return value.message
-  if (typeof value === "string") return value
-  return String(value)
-}
 
 export function fail<T>(error: AppError): AppResult<T> {
   return {
@@ -23,22 +18,22 @@ export function succeed<T>(data: T): AppResult<T> {
   }
 }
 
-export function failAsInvalidParametersError<T>(cause: unknown): AppResult<T> {
-  return fail<T>({ type: "InvalidParametersError", message: toMessage(cause), cause } satisfies InvalidParametersError)
+export function failAsInvalidParametersError<T>(message: string, cause?: unknown): AppResult<T> {
+  return fail<T>({ type: "InvalidParametersError", message, cause } satisfies InvalidParametersError)
 }
 
-export function failAsNotFoundError<T>(cause: unknown): AppResult<T> {
-  return fail<T>({ type: "NotFoundError", message: toMessage(cause), cause } satisfies NotFoundError)
+export function failAsNotFoundError<T>(message: string, cause?: unknown): AppResult<T> {
+  return fail<T>({ type: "NotFoundError", message, cause } satisfies NotFoundError)
 }
 
-export function failAsForbiddenError<T>(cause: unknown): AppResult<T> {
-  return fail<T>({ type: "ForbiddenError", message: toMessage(cause), cause } satisfies ForbiddenError)
+export function failAsForbiddenError<T>(message: string, cause?: unknown): AppResult<T> {
+  return fail<T>({ type: "ForbiddenError", message, cause } satisfies ForbiddenError)
 }
 
-export function failAsInternalServerError<T>(cause: unknown): AppResult<T> {
-  return fail<T>({ type: "InternalServerError", message: toMessage(cause), cause } satisfies InternalServerError)
+export function failAsInternalServerError<T>(message: string, cause?: unknown): AppResult<T> {
+  return fail<T>({ type: "InternalServerError", message, cause } satisfies InternalServerError)
 }
 
-export function failAsExternalServiceError<T>(cause: unknown): AppResult<T> {
-  return fail<T>({ type: "ExternalServiceError", message: toMessage(cause), cause } satisfies ExternalServiceError)
+export function failAsExternalServiceError<T>(message: string, cause?: unknown): AppResult<T> {
+  return fail<T>({ type: "ExternalServiceError", message, cause } satisfies ExternalServiceError)
 }

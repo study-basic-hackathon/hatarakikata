@@ -1,12 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ResetPassword } from '@/core/application/service/auth'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeResetPassword(supabase: SupabaseClient): ResetPassword {
-  return async ({ email }) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email)
-    if (error) return failAsExternalServiceError(error.message)
+import { getSupabaseBrowserClient } from '../client'
 
-    return succeed(undefined)
-  }
+export const resetPassword: ResetPassword = async ({ email }) => {
+  const supabase = getSupabaseBrowserClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email)
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(undefined)
 }

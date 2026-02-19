@@ -1,7 +1,8 @@
 'use client'
 
-import Alert from '@/ui/components/basic/Alert'
 import Link from 'next/link'
+
+import Alert from '@/ui/components/basic/Alert'
 
 export default function VerifyEmailPage() {
   return (

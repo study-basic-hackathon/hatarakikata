@@ -1,7 +1,8 @@
 import Link from "next/link"
 import { RiArrowRightSLine } from "react-icons/ri"
-import { MenuListItemProps } from "./types"
+
 import { menuListItem } from "./styles"
+import { MenuListItemProps } from "./types"
 
 export type MenuListItemLinkProps = MenuListItemProps & {
   to: string

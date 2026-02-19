@@ -1,14 +1,15 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useSignUpMutation } from '@/ui/hooks/auth'
-import { SignUpParametersSchema, type SignUpParameters } from '@/ui/service/auth'
-import TextField from '@/ui/components/basic/field/TextField'
-import Button from '@/ui/components/basic/Button'
-import Alert from '@/ui/components/basic/Alert'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { FormProvider,useForm } from 'react-hook-form'
+
+import Alert from '@/ui/components/basic/Alert'
+import Button from '@/ui/components/basic/Button'
+import TextField from '@/ui/components/basic/field/TextField'
+import { useSignUpMutation } from '@/ui/hooks/auth'
+import { type SignUpParameters,SignUpParametersSchema } from '@/ui/service/auth'
 
 export default function SignupPage() {
   const router = useRouter()

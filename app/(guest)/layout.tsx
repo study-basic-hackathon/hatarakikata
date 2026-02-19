@@ -1,7 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, type ReactNode } from 'react'
+import { type ReactNode,useEffect } from 'react'
+
+import Spinner from '@/ui/components/basic/Spinner'
 import { useAuth } from '@/ui/providers/AuthProvider'
 
 export default function GuestLayout({ children }: { children: ReactNode }) {
@@ -18,7 +20,7 @@ export default function GuestLayout({ children }: { children: ReactNode }) {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>読み込み中...</p>
+        <Spinner />
       </div>
     )
   }

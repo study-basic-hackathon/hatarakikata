@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo,useState } from "react"
 import { IoChevronBack, IoChevronForward } from "react-icons/io5"
-import Dialog from "@/ui/components/basic/dialog/Dialog"
+
 import Alert from "@/ui/components/basic/Alert"
 import Button from "@/ui/components/basic/Button"
+import Dialog from "@/ui/components/basic/dialog/Dialog"
+
 import { useCarrerMapEditorContext } from "./hooks/CarrerMapEditorContext"
 
 type Step = "year" | "month" | "day"
@@ -155,7 +157,6 @@ export default function CarrerMapRequestBirthdayDialog() {
   const handleSelectDay = (d: number) => {
     setDay(d)
   }
-
 
   const handleSubmit = () => {
     if (!year || !month || !day) {

@@ -1,8 +1,9 @@
 "use client"
 
 import { RiZoomInLine, RiZoomOutLine } from "react-icons/ri"
+
 import { useCarrerMapEditorContext } from "./hooks/CarrerMapEditorContext"
-import { SCALE_MIN, SCALE_MAX } from "./utils/constants"
+import { SCALE_MAX,SCALE_MIN } from "./utils/constants"
 
 export default function CarrerMapToolBar() {
   const { scale, setScale } = useCarrerMapEditorContext()

@@ -1,19 +1,19 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { DeleteCareerMapCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerMapRowToEntity } from '@/infrastructure/converter'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeDeleteCareerMapCommand(supabase: SupabaseClient): DeleteCareerMapCommand {
-  return async ({ id }) => {
-    const { data, error } = await supabase
-      .from('career_maps')
-      .delete()
-      .eq('id', id)
-      .select('id, user_id, start_date')
-      .single()
+import { createSupabaseServer } from '../../client'
+import { careerMapRowToEntity } from '../../converter'
 
-    if (error) return failAsExternalServiceError(error.message)
+export const deleteCareerMapCommand: DeleteCareerMapCommand = async ({ id }) => {
+  const supabase = await createSupabaseServer()
+  const { data, error } = await supabase
+    .from('career_maps')
+    .delete()
+    .eq('id', id)
+    .select('id, user_id, start_date')
+    .single()
 
-    return succeed(careerMapRowToEntity(data))
-  }
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(careerMapRowToEntity(data))
 }

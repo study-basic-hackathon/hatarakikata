@@ -1,61 +1,49 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UpdateCareerEventCommand } from '@/core/application/service/command'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
-import { careerEventRowToEntity } from '@/infrastructure/converter'
-import type { CareerEventWithTagsRow } from '@/infrastructure/types'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-const CAREER_EVENT_SELECT_WITH_TAGS = 'id, career_map_id, name, start_date, end_date, strength, row, description, career_map_event_tag_attachments(career_map_event_tags(id, name))'
+import { createSupabaseServer } from '../../client'
 
-export function makeUpdateCareerEventCommand(supabase: SupabaseClient): UpdateCareerEventCommand {
-  return async (params) => {
-    const updateData: Record<string, unknown> = {}
-    if (params.careerMapId !== undefined) updateData.career_map_id = params.careerMapId
-    if (params.name !== undefined) updateData.name = params.name
-    if (params.startDate !== undefined) updateData.start_date = params.startDate
-    if (params.endDate !== undefined) updateData.end_date = params.endDate
-    if (params.strength !== undefined) updateData.strength = params.strength
-    if (params.row !== undefined) updateData.row = params.row
-    if (params.description !== undefined) updateData.description = params.description
+export const updateCareerEventCommand: UpdateCareerEventCommand = async (parameters) => {
+  const supabase = await createSupabaseServer()
+  const updateData: Record<string, unknown> = {}
+  if (parameters.careerMapId !== undefined) updateData.career_map_id = parameters.careerMapId
+  if (parameters.name !== undefined) updateData.name = parameters.name
+  if (parameters.startDate !== undefined) updateData.start_date = parameters.startDate
+  if (parameters.endDate !== undefined) updateData.end_date = parameters.endDate
+  if (parameters.strength !== undefined) updateData.strength = parameters.strength
+  if (parameters.row !== undefined) updateData.row = parameters.row
+  if (parameters.description !== undefined) updateData.description = parameters.description
 
-    if (Object.keys(updateData).length > 0) {
-      const { error } = await supabase
-        .from('career_events')
-        .update(updateData)
-        .eq('id', params.id)
-
-      if (error) return failAsExternalServiceError(error.message)
-    }
-
-    if (params.tags !== undefined) {
-      const { error: deleteError } = await supabase
-        .from('career_map_event_tag_attachments')
-        .delete()
-        .eq('career_event_id', params.id)
-
-      if (deleteError) return failAsExternalServiceError(deleteError.message)
-
-      if (params.tags.length > 0) {
-        const attachments = params.tags.map((tagId) => ({
-          career_event_id: params.id,
-          career_map_event_tag_id: tagId,
-        }))
-
-        const { error: insertError } = await supabase
-          .from('career_map_event_tag_attachments')
-          .insert(attachments)
-
-        if (insertError) return failAsExternalServiceError(insertError.message)
-      }
-    }
-
-    const { data: fullData, error: fetchError } = await supabase
+  if (Object.keys(updateData).length > 0) {
+    const { error } = await supabase
       .from('career_events')
-      .select(CAREER_EVENT_SELECT_WITH_TAGS)
-      .eq('id', params.id)
-      .single()
+      .update(updateData)
+      .eq('id', parameters.id)
 
-    if (fetchError) return failAsExternalServiceError(fetchError.message)
-
-    return succeed(careerEventRowToEntity(fullData as unknown as CareerEventWithTagsRow))
+    if (error) return failAsExternalServiceError(error.message, error)
   }
+
+  if (parameters.tags !== undefined) {
+    const { error: deleteError } = await supabase
+      .from('career_map_event_tag_attachments')
+      .delete()
+      .eq('career_event_id', parameters.id)
+
+    if (deleteError) return failAsExternalServiceError(deleteError.message, deleteError)
+
+    if (parameters.tags.length > 0) {
+      const attachments = parameters.tags.map((tagId) => ({
+        career_event_id: parameters.id,
+        career_map_event_tag_id: tagId,
+      }))
+
+      const { error: insertError } = await supabase
+        .from('career_map_event_tag_attachments')
+        .insert(attachments)
+
+      if (insertError) return failAsExternalServiceError(insertError.message, insertError)
+    }
+  }
+
+  return succeed(undefined)
 }

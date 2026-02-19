@@ -1,6 +1,7 @@
+import { z } from "zod"
+
 import { PagedCareerMaps } from "@/core/domain"
 import { AppResult } from "@/core/util/appResult"
-import { z } from "zod"
 
 export const ListCareerMapByUserIdQueryParametersSchema = z.object({
   userId: z.string(),

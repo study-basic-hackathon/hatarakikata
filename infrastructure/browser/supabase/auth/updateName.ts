@@ -1,12 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UpdateName } from '@/core/application/service/auth'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeUpdateName(supabase: SupabaseClient): UpdateName {
-  return async ({ name }) => {
-    const { error } = await supabase.auth.updateUser({ data: { name } })
-    if (error) return failAsExternalServiceError(error.message)
+import { getSupabaseBrowserClient } from '../client'
 
-    return succeed(undefined)
-  }
+export const updateName: UpdateName = async ({ name }) => {
+  const supabase = getSupabaseBrowserClient()
+  const { error } = await supabase.auth.updateUser({ data: { name } })
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(undefined)
 }

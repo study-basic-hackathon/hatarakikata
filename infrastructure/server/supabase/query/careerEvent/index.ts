@@ -1,2 +1,2 @@
-export { makeFindCareerEventQuery } from './findCareerEventQuery'
-export { makeListCareerEventsByCareerMapIdQuery } from './listCareerEventsByCareerMapIdQuery'
+export * from './findCareerEventQuery'
+export * from './listCareerEventsByCareerMapIdQuery'

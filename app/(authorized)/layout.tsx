@@ -1,12 +1,13 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useEffect, useRef, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '@/ui/providers/AuthProvider'
-import { useCurrentUserQuery, useInitializeUserMutation, CURRENT_USER_QUERY_KEY } from '@/ui/hooks/user'
-import { ApiError } from '@/ui/service/api/client'
+import { useRouter } from 'next/navigation'
+import { type ReactNode,useEffect, useRef } from 'react'
+
 import Spinner from '@/ui/components/basic/Spinner'
+import { CURRENT_USER_QUERY_KEY,useCurrentUserQuery, useInitializeUserMutation } from '@/ui/hooks/user'
+import { useAuth } from '@/ui/providers/AuthProvider'
+import { ApiError } from '@/ui/service/api/client'
 
 export default function AuthorizedLayout({ children }: { children: ReactNode }) {
   const router = useRouter()

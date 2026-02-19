@@ -1,1 +1,1 @@
-export { makeListCareerMapEventTagsQuery } from './listCareerMapEventTagsQuery'
+export * from './listCareerMapEventTagsQuery'

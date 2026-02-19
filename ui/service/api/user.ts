@@ -1,4 +1,5 @@
 import { User } from '@/core/domain'
+
 import { apiFetch } from './client'
 
 export function fetchCurrentUser(): Promise<User> {

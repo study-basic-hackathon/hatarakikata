@@ -1,6 +1,7 @@
+import { z } from "zod"
+
 import { CareerMap, CareerMapKeySchema, CareerMapPayloadSchema,  } from "@/core/domain"
 import { AppResult } from "@/core/util/appResult"
-import { z } from "zod"
 
 export const UpdateCareerMapCommandParametersSchema = CareerMapKeySchema.extend(
   CareerMapPayloadSchema.partial().shape

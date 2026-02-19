@@ -1,6 +1,8 @@
-import { CareerEvent } from "@/core/domain"
-import { AppResult, failAsInvalidParametersError, failAsForbiddenError, failAsNotFoundError } from "@/core/util/appResult"
 import { z } from "zod"
+
+import { CareerEvent } from "@/core/domain"
+import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"
+
 import { Executor } from "../../executor"
 import { UpdateCareerEventCommand, UpdateCareerEventCommandParametersSchema } from "../../service/command"
 import { FindCareerEventQuery, FindCareerMapQuery } from "../../service/query"
@@ -29,7 +31,7 @@ export function makeUpdateCareerEvent({
 }: MakeUpdateCareerEventDependencies): UpdateCareerEvent {
   return async (input, executor) => {
     const validation = UpdateCareerEventParametersSchema.safeParse(input)
-    if (!validation.success) return failAsInvalidParametersError(validation.error)
+    if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
     if (executor.type !== "user" || executor.userType !== "general") return failAsForbiddenError("Forbidden")
 
@@ -51,6 +53,15 @@ export function makeUpdateCareerEvent({
       return failAsForbiddenError("Forbidden")
     }
 
-    return await updateCareerEventCommand(parameters)
+    const updateResult = await updateCareerEventCommand(parameters)
+    if (!updateResult.success) return updateResult
+
+    const updatedCareerEventResult = await findCareerEventQuery({ id: parameters.id })
+    if (!updatedCareerEventResult.success) return updatedCareerEventResult
+
+    const updatedCareerEvent = updatedCareerEventResult.data
+    if (!updatedCareerEvent) return failAsNotFoundError("Career event is not found")
+
+    return succeed(updatedCareerEvent)
   }
 }

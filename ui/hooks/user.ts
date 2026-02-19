@@ -1,11 +1,12 @@
 'use client'
 
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useMutation,useQuery } from '@tanstack/react-query'
+
 import {
+  deleteCurrentUser,
   fetchCurrentUser,
   initializeUser,
   updateCurrentUser,
-  deleteCurrentUser,
 } from '@/ui/service/api'
 
 export const CURRENT_USER_QUERY_KEY = ['user', 'me'] as const

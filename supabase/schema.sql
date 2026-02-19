@@ -49,3 +49,35 @@ create table career_map_event_tag_attachments (
 
 create index career_map_event_tag_attachments_career_event_id_idx on career_map_event_tag_attachments(career_event_id);
 create index career_map_event_tag_attachments_tag_id_idx on career_map_event_tag_attachments(career_map_event_tag_id);
+
+-- Vector search (pgvector)
+create extension if not exists vector;
+
+create table career_map_vectors (
+  career_map_id uuid primary key references career_maps(id) on delete cascade,
+  embedding vector(1536) not null,
+  tag_weights jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+create index career_map_vectors_embedding_idx on career_map_vectors using ivfflat (embedding vector_cosine_ops) with (lists = 100);
+
+create or replace function match_career_map_vectors(
+  query_embedding vector(1536),
+  match_count int,
+  match_id uuid
+)
+returns table(
+  career_map_id uuid,
+  similarity float,
+  tag_weights jsonb
+)
+language sql stable as $$
+  select career_map_id,
+         1 - (embedding <=> query_embedding) as similarity,
+         tag_weights
+    from career_map_vectors
+   where career_map_id <> match_id
+   order by embedding <=> query_embedding
+   limit match_count;
+$$;

@@ -1,6 +1,7 @@
+import { z } from "zod";
+
 import { UserSchema } from "@/core/domain";
 import { SystemOperationSchema } from "@/core/domain/value/system";
-import { z } from "zod";
 
 export const GeneralUserExecutorSchema = z.object({
   type: z.literal("user"),

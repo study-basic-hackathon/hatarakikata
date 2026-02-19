@@ -1,6 +1,7 @@
+import { z } from "zod"
+
 import { CareerEvent, CareerEventKeySchema } from "@/core/domain"
 import { AppResult } from "@/core/util/appResult"
-import { z } from "zod"
 
 export const FindCareerEventQueryParametersSchema = CareerEventKeySchema
 

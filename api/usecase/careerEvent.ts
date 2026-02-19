@@ -1,10 +1,12 @@
 import { makeCreateCareerEvent } from '@/core/application/usecase/careerEvent/createCareerEvent'
-import { makeUpdateCareerEvent } from '@/core/application/usecase/careerEvent/updateCareerEvent'
 import { makeDeleteCareerEvent } from '@/core/application/usecase/careerEvent/deleteCareerEvent'
+import { makeGenerateCareerEvents } from '@/core/application/usecase/careerEvent/generateCareerEvents'
 import { makeGetCareerEvent } from '@/core/application/usecase/careerEvent/getCareerEvent'
 import { makeListCareerEventsByCareerMapId } from '@/core/application/usecase/careerEvent/listCareerEventsByCareerMapId'
-import { createCareerEventCommand, updateCareerEventCommand, deleteCareerEventCommand } from '@/infrastructure/server/supabase/command'
-import { findCareerEventQuery, findCareerMapQuery, listCareerEventsByCareerMapIdQuery } from '@/infrastructure/server/supabase/query'
+import { makeUpdateCareerEvent } from '@/core/application/usecase/careerEvent/updateCareerEvent'
+import { generateCareerEvents as generateCareerEventsAi } from '@/infrastructure/server/ai'
+import { createCareerEventCommand, deleteCareerEventCommand,updateCareerEventCommand } from '@/infrastructure/server/supabase/command'
+import { findCareerEventQuery, findCareerMapQuery, listCareerEventsByCareerMapIdQuery, listCareerMapEventTagsQuery } from '@/infrastructure/server/supabase/query'
 
 export const createCareerEvent = makeCreateCareerEvent({
   createCareerEventCommand,
@@ -31,4 +33,11 @@ export const getCareerEvent = makeGetCareerEvent({
 export const listCareerEventsByCareerMapId = makeListCareerEventsByCareerMapId({
   listCareerEventsByCareerMapIdQuery,
   findCareerMapQuery,
+})
+
+export const generateCareerEvents = makeGenerateCareerEvents({
+  generateCareerEvents: generateCareerEventsAi,
+  createCareerEventCommand,
+  findCareerMapQuery,
+  listCareerMapEventTagsQuery,
 })

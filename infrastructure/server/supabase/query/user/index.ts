@@ -1,1 +1,1 @@
-export { makeFindUserQuery } from './findUserQuery'
+export * from './findUserQuery'

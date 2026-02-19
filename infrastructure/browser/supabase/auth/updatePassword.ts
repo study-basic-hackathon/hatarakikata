@@ -1,12 +1,12 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
 import type { UpdatePassword } from '@/core/application/service/auth'
-import { succeed, failAsExternalServiceError } from '@/core/util/appResult'
+import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-export function makeUpdatePassword(supabase: SupabaseClient): UpdatePassword {
-  return async ({ password }) => {
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) return failAsExternalServiceError(error.message)
+import { getSupabaseBrowserClient } from '../client'
 
-    return succeed(undefined)
-  }
+export const updatePassword: UpdatePassword = async ({ password }) => {
+  const supabase = getSupabaseBrowserClient()
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) return failAsExternalServiceError(error.message, error)
+
+  return succeed(undefined)
 }

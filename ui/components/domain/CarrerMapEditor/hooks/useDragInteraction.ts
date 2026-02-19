@@ -1,9 +1,11 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
+
 import type { CareerEvent } from "@/core/domain"
+
 import type { TimelineConfig } from "../utils/constants"
-import { type Rect, xToDate, dateToX, yToRow } from "../utils/timelineMapping"
+import { dateToX, type Rect, xToDate, yToRow } from "../utils/timelineMapping"
 
 export type DragMode = "move" | "resize-start" | "resize-end" | "strength"
 
@@ -19,7 +21,6 @@ type DragState = {
 export function useDragInteraction(
   config: TimelineConfig,
   onUpdate: (event: CareerEvent) => void,
-  visibleRows: number[],
 ) {
   const [dragState, setDragState] = useState<DragState | null>(null)
   const dragStateRef = useRef<DragState | null>(null)
@@ -66,9 +67,8 @@ export function useDragInteraction(
     if (mode === "move") {
       const snappedStartX = snapX(startRect.x + dx)
       const snappedEndX = snapX(startRect.x + startRect.width + dx)
-      const newRow = yToRow(startRect.y + dy, config, visibleRows)
-      const displayIndex = Math.max(0, visibleRows.indexOf(newRow))
-      const rowTopPx = config.headerHeightInUnits * config.unit + displayIndex * rowHeight
+      const newRow = yToRow(startRect.y + dy, config)
+      const rowTopPx = config.headerHeightInUnits * config.unit + newRow * rowHeight
       const strength = originalEvent.strength ?? 3
       const height = strength * rowHeight
       setPreviewRect({
@@ -108,7 +108,7 @@ export function useDragInteraction(
         height: newHeight,
       })
     }
-  }, [config, snapX, visibleRows])
+  }, [config, snapX])
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     const state = dragStateRef.current
@@ -126,7 +126,7 @@ export function useDragInteraction(
     if (mode === "move") {
       const newStartX = startRect.x + dx
       const newEndX = newStartX + startRect.width
-      const newRow = yToRow(startRect.y + dy, config, visibleRows)
+      const newRow = yToRow(startRect.y + dy, config)
       updatedEvent = {
         ...originalEvent,
         startDate: xToDate(newStartX, config),
@@ -162,7 +162,7 @@ export function useDragInteraction(
     dragStateRef.current = null
     setPreviewRect(null)
     setPreviewStrength(null)
-  }, [config, onUpdate, visibleRows])
+  }, [config, onUpdate])
 
   return {
     dragState,

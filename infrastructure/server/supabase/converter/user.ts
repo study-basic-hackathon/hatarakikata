@@ -1,5 +1,6 @@
 import type { User } from "@/core/domain/entity/user"
-import type { UserRow } from "@/infrastructure/types"
+
+import type { UserRow } from "../schemas"
 
 export function userRowToEntity(row: UserRow): User {
   return {

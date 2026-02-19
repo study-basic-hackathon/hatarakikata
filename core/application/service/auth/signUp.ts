@@ -1,5 +1,7 @@
 import { z } from 'zod'
+
 import { AppResult } from '@/core/util/appResult'
+
 import { AuthUser } from './authUser'
 
 export const SignUpParametersSchema = z.object({

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { RiUserLine } from 'react-icons/ri'
+
 import { useCurrentUserQuery } from '@/ui/hooks/user'
 
 const maxWidthStyles = {

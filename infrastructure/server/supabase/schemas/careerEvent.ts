@@ -1,17 +1,6 @@
 import { z } from "zod"
 
-export const UserRowSchema = z.object({
-  id: z.string(),
-  name: z.string().nullable(),
-})
-export type UserRow = z.infer<typeof UserRowSchema>
-
-export const CareerMapRowSchema = z.object({
-  id: z.string(),
-  user_id: z.string(),
-  start_date: z.string().nullable(),
-})
-export type CareerMapRow = z.infer<typeof CareerMapRowSchema>
+import { CareerMapEventTagRowSchema } from "./careerMapEventTag"
 
 export const CareerEventRowSchema = z.object({
   id: z.string(),
@@ -24,12 +13,6 @@ export const CareerEventRowSchema = z.object({
   description: z.string().nullable(),
 })
 export type CareerEventRow = z.infer<typeof CareerEventRowSchema>
-
-export const CareerMapEventTagRowSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-})
-export type CareerMapEventTagRow = z.infer<typeof CareerMapEventTagRowSchema>
 
 export const CareerEventWithTagsRowSchema = CareerEventRowSchema.extend({
   career_map_event_tag_attachments: z.array(

@@ -1,15 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { RxCross2 } from "react-icons/rx"
 import { FormProvider } from "react-hook-form"
-import Dialog from "@/ui/components/basic/dialog/Dialog"
+import { RxCross2 } from "react-icons/rx"
+
+import type { CareerMapEventTag } from "@/core/domain"
 import Button from "@/ui/components/basic/Button"
-import TextField from "@/ui/components/basic/field/TextField"
+import Dialog from "@/ui/components/basic/dialog/Dialog"
 import MonthField from "@/ui/components/basic/field/MonthField"
 import StepField from "@/ui/components/basic/field/StepField"
 import TextAreaField from "@/ui/components/basic/field/TextAreaField"
-import type { CareerMapEventTag } from "@/core/domain"
+import TextField from "@/ui/components/basic/field/TextField"
+import Spinner from "@/ui/components/basic/Spinner"
+
 import { useCareerMapEventDialogForm } from "./hooks"
 
 function TagSelector({
@@ -43,7 +46,7 @@ function TagSelector({
     <div className="flex flex-col gap-1">
       <label className="text-sm font-medium">タグ</label>
       {isLoadingTags ? (
-        <p className="text-sm text-foreground/50">読み込み中...</p>
+        <Spinner size="small" />
       ) : (
         <>
           {selectedTags.length > 0 && (

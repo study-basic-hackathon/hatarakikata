@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useCallback, useMemo,useState } from "react"
+
 import type { CareerEvent, CareerEventPayload, CareerMap } from "@/core/domain"
-import type { useCareerMapQuery, useUpdateCareerMapMutation } from "@/ui/hooks/careerMap"
 import type {
   useCareerEventsByCareerMapIdQuery,
   useCreateCareerEventMutation,
-  useUpdateCareerEventMutation,
   useDeleteCareerEventMutation,
+  useUpdateCareerEventMutation,
 } from "@/ui/hooks/careerEvent"
-import { type TimelineConfig, DEFAULT_TIMELINE_CONFIG, SCALE_MONTH_WIDTH_PX, SCALE_DEFAULT } from "../utils/constants"
+import type { useCareerMapQuery, useUpdateCareerMapMutation } from "@/ui/hooks/careerMap"
+
+import { DEFAULT_TIMELINE_CONFIG, SCALE_DEFAULT,SCALE_MONTH_WIDTH_PX, type TimelineConfig } from "../utils/constants"
 import { computeTimelineConfig } from "../utils/timelineMapping"
 
 export type CarrerMapEditorStatus = 'loading' | 'required-start-date' | 'ready'
@@ -46,11 +48,14 @@ export type CarrerMapEditorState = {
   scale: number
   setScale: (scale: number) => void
 
-  extraRows: number
-  addRow: () => void
+  selectedEventIds: Set<string>
+  selectEvent: (eventId: string, shiftKey: boolean) => void
+  clearSelection: () => void
+  deleteSelectedEvents: () => void
 
   updateCareerMap: (updates: Partial<Pick<CareerMap, "startDate">>) => void
   createEvent: (payload: CareerEventPayload) => void
+  addEvents: (events: CareerEvent[]) => void
   updateEvent: (event: CareerEvent) => void
   deleteEvent: (eventId: string) => void
 
@@ -58,6 +63,14 @@ export type CarrerMapEditorState = {
   openCreateDialog: (prefill?: CreatePrefill) => void
   openEditDialog: (event: CareerEvent) => void
   closeDialog: () => void
+
+  generateDialogOpen: boolean
+  openGenerateDialog: () => void
+  closeGenerateDialog: () => void
+
+  searchDialogOpen: boolean
+  openSearchDialog: () => void
+  closeSearchDialog: () => void
 }
 
 export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMapEditorState {
@@ -75,13 +88,46 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
   const [localEvents, setLocalEvents] = useState<CareerEvent[]>([])
   const [prevQueryData, setPrevQueryData] = useState(careerEventsQuery.data)
   const [dialogState, setDialogState] = useState<DialogState>({ open: false })
+  const [generateDialogOpen, setGenerateDialogOpen] = useState(false)
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false)
   const [error, setError] = useState<Error | undefined>(undefined)
   const [scale, setScale] = useState(SCALE_DEFAULT)
-  const [extraRows, setExtraRows] = useState(0)
+  const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set())
 
-  const addRow = useCallback(() => {
-    setExtraRows((prev) => prev + 1)
+  const selectEvent = useCallback((eventId: string, shiftKey: boolean) => {
+    setSelectedEventIds((prev) => {
+      if (shiftKey) {
+        const next = new Set(prev)
+        if (next.has(eventId)) {
+          next.delete(eventId)
+        } else {
+          next.add(eventId)
+        }
+        return next
+      }
+      return new Set([eventId])
+    })
   }, [])
+
+  const clearSelection = useCallback(() => {
+    setSelectedEventIds(new Set())
+  }, [])
+
+  const deleteSelectedEvents = useCallback(() => {
+    if (selectedEventIds.size === 0) return
+    for (const eventId of selectedEventIds) {
+      setLocalEvents((prev) => prev.filter((e) => e.id !== eventId))
+      deleteCareerEventMutation.mutate(
+        { id: eventId },
+        {
+          onError: (err) => {
+            setError(err instanceof Error ? err : new Error(String(err)))
+          },
+        },
+      )
+    }
+    setSelectedEventIds(new Set())
+  }, [selectedEventIds, deleteCareerEventMutation])
 
   // Sync from server data (update during render instead of useEffect)
   if (careerEventsQuery.data !== prevQueryData) {
@@ -145,7 +191,7 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
 
   const handleCreateEvent = useCallback(
     (payload: CareerEventPayload) => {
-      const tempId = `temp-${Date.now()}`
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`
       const tempEvent = { ...payload, id: tempId } as CareerEvent
       setLocalEvents((prev) => [...prev, tempEvent])
       setError(undefined)
@@ -161,6 +207,13 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
       })
     },
     [createCareerEventMutation],
+  )
+
+  const handleAddEvents = useCallback(
+    (events: CareerEvent[]) => {
+      setLocalEvents((prev) => [...prev, ...events])
+    },
+    [],
   )
 
   const handleUpdateEvent = useCallback(
@@ -212,6 +265,22 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
     setDialogState({ open: false })
   }, [])
 
+  const openGenerateDialog = useCallback(() => {
+    setGenerateDialogOpen(true)
+  }, [])
+
+  const closeGenerateDialog = useCallback(() => {
+    setGenerateDialogOpen(false)
+  }, [])
+
+  const openSearchDialog = useCallback(() => {
+    setSearchDialogOpen(true)
+  }, [])
+
+  const closeSearchDialog = useCallback(() => {
+    setSearchDialogOpen(false)
+  }, [])
+
   return {
     status,
     careerMapId,
@@ -221,15 +290,24 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
     error: aggregatedError,
     scale,
     setScale,
-    extraRows,
-    addRow,
+    selectedEventIds,
+    selectEvent,
+    clearSelection,
+    deleteSelectedEvents,
     updateCareerMap: handleUpdateCareerMap,
     createEvent: handleCreateEvent,
+    addEvents: handleAddEvents,
     updateEvent: handleUpdateEvent,
     deleteEvent: handleDeleteEvent,
     dialogState,
     openCreateDialog,
     openEditDialog,
     closeDialog,
+    generateDialogOpen,
+    openGenerateDialog,
+    closeGenerateDialog,
+    searchDialogOpen,
+    openSearchDialog,
+    closeSearchDialog,
   }
 }
