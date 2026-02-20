@@ -1,11 +1,11 @@
 import type { DeleteCareerMapCommand } from '@/core/application/port/command'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-import { createSupabaseServer } from '../../client'
+import { createSupabaseAdmin } from '../../client'
 import { careerMapRowToEntity } from '../../converter'
 
 export const deleteCareerMapCommand: DeleteCareerMapCommand = async ({ id }) => {
-  const supabase = await createSupabaseServer()
+  const supabase = createSupabaseAdmin()
   const { data, error } = await supabase
     .from('career_maps')
     .delete()

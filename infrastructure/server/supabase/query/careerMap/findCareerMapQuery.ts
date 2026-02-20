@@ -1,11 +1,11 @@
 import type { FindCareerMapQuery } from '@/core/application/port/query'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-import { createSupabaseServer } from '../../client'
+import { createSupabaseAdmin } from '../../client'
 import { careerMapRowToEntity } from '../../converter'
 
 export const findCareerMapQuery: FindCareerMapQuery = async ({ id }) => {
-  const supabase = await createSupabaseServer()
+  const supabase = createSupabaseAdmin()
   const { data, error } = await supabase
     .from('career_maps')
     .select('id, user_id, start_date')

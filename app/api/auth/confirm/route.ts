@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-import { createSupabaseServer } from '@/infrastructure/server/supabase/client'
+import { createSupabaseAdmin } from '@/infrastructure/server/supabase/client'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type')
 
   if (tokenHash && type) {
-    const supabase = await createSupabaseServer()
+    const supabase = createSupabaseAdmin()
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: type as 'email_change',

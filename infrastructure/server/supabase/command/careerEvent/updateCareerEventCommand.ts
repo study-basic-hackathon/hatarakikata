@@ -1,10 +1,10 @@
 import type { UpdateCareerEventCommand } from '@/core/application/port/command'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
-import { createSupabaseServer } from '../../client'
+import { createSupabaseAdmin } from '../../client'
 
 export const updateCareerEventCommand: UpdateCareerEventCommand = async (parameters) => {
-  const supabase = await createSupabaseServer()
+  const supabase = createSupabaseAdmin()
   const updateData: Record<string, unknown> = {}
   if (parameters.careerMapId !== undefined) updateData.career_map_id = parameters.careerMapId
   if (parameters.name !== undefined) updateData.name = parameters.name

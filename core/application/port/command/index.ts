@@ -1,3 +1,4 @@
+export * from './careerData'
 export * from './careerEvent'
 export * from './careerMap'
 export * from './careerMapVector'

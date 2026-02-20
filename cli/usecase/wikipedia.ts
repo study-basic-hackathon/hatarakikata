@@ -1,0 +1,34 @@
+import { makeGenerateCareerFromWikipedia } from '@/core/application/usecase/careerMap/generateCareerFromWikipedia'
+import { makeImportCareerData } from '@/core/application/usecase/careerMap/importCareerData'
+import { makeListCareerData } from '@/core/application/usecase/careerMap/listCareerData'
+import { generateCareerEventsFromBiography } from '@/infrastructure/server/ai/operation/generateCareerEventsFromBiography'
+import { saveCareerDataCommand } from '@/infrastructure/server/fs/command/careerData/saveCareerDataCommand'
+import { listCareerDataQuery } from '@/infrastructure/server/fs/query/careerData/listCareerDataQuery'
+import { readCareerDataQuery } from '@/infrastructure/server/fs/query/careerData/readCareerDataQuery'
+import { createCareerEventCommand } from '@/infrastructure/server/supabase/command/careerEvent/createCareerEventCommand'
+import { createCareerMapCommand } from '@/infrastructure/server/supabase/command/careerMap/createCareerMapCommand'
+import { createUserCommand } from '@/infrastructure/server/supabase/command/user/createUserCommand'
+import { listCareerMapEventTagsQuery } from '@/infrastructure/server/supabase/query/careerMapEventTag/listCareerMapEventTagsQuery'
+import { listUserNamesQuery } from '@/infrastructure/server/supabase/query/user/listUserNamesQuery'
+import { fetchWikipediaBiography } from '@/infrastructure/server/wikipedia/fetchWikipediaBiography'
+
+export const generateCareerFromWikipedia = makeGenerateCareerFromWikipedia({
+  fetchWikipediaBiography,
+  generateCareerEventsFromBiography,
+  listCareerDataQuery,
+  listCareerMapEventTagsQuery,
+  saveCareerDataCommand,
+})
+
+export const importCareerData = makeImportCareerData({
+  readCareerDataQuery,
+  listUserNamesQuery,
+  createUserCommand,
+  createCareerMapCommand,
+  createCareerEventCommand,
+  listCareerMapEventTagsQuery,
+})
+
+export const listCareerData = makeListCareerData({
+  listCareerDataQuery,
+})

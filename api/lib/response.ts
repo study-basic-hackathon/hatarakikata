@@ -12,6 +12,7 @@ export function toResponse<T>(result: AppResult<T>): NextResponse {
     InvalidParametersError: 400,
     ForbiddenError: 403,
     NotFoundError: 404,
+    ConflictError: 409,
     InternalServerError: 500,
     ExternalServiceError: 502,
   } as const

@@ -28,4 +28,10 @@ export type ExternalServiceError = {
   cause?: unknown
 }
 
-export type AppError = InvalidParametersError | NotFoundError | ForbiddenError | InternalServerError | ExternalServiceError
+export type ConflictError = {
+  type: "ConflictError"
+  message: string
+  cause?: unknown
+}
+
+export type AppError = InvalidParametersError | NotFoundError | ForbiddenError | InternalServerError | ExternalServiceError | ConflictError
