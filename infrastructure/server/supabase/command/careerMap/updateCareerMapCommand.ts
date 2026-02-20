@@ -1,4 +1,4 @@
-import type { UpdateCareerMapCommand } from '@/core/application/service/command'
+import type { UpdateCareerMapCommand } from '@/core/application/port/command'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
 import { createSupabaseServer } from '../../client'

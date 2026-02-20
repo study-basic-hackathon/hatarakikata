@@ -1,9 +1,9 @@
 import { z } from "zod"
 
 import type { Executor } from "@/core/application/executor"
-import type { CreateCareerEventCommand } from "@/core/application/service/command"
-import type { GenerateCareerEventsOperation } from "@/core/application/service/operation"
-import type { FindCareerMapQuery, ListCareerMapEventTagsQuery } from "@/core/application/service/query"
+import type { CreateCareerEventCommand } from "@/core/application/port/command"
+import type { GenerateCareerEventsOperation } from "@/core/application/port/operation"
+import type { FindCareerMapQuery, ListCareerMapEventTagsQuery } from "@/core/application/port/query"
 import type { CareerEvent } from "@/core/domain"
 import { CareerEventSchema } from "@/core/domain"
 import { type AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"

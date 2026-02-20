@@ -4,8 +4,8 @@ import { User } from "@/core/domain"
 import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { DeleteCareerEventCommand,DeleteCareerMapCommand, DeleteUserCommand, DeleteUserCommandParametersSchema } from "../../service/command"
-import { FindUserQuery, ListCareerEventsByCareerMapIdQuery,ListCareerMapByUserIdQuery } from "../../service/query"
+import { DeleteCareerEventCommand,DeleteCareerMapCommand, DeleteUserCommand, DeleteUserCommandParametersSchema } from "../../port/command"
+import { FindUserQuery, ListCareerEventsByCareerMapIdQuery,ListCareerMapByUserIdQuery } from "../../port/query"
 
 const WithdrawParametersSchema = DeleteUserCommandParametersSchema
 

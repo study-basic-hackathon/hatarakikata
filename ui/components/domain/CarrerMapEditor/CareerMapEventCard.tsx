@@ -11,7 +11,7 @@ import type { DragMode } from "./hooks/useDragInteraction"
 const HANDLE_SIZE = 8
 
 const card = tv({
-  base: "w-full h-full rounded border select-none flex flex-col relative group bg-gray-100 border-gray-300 text-gray-700",
+  base: "w-full h-full rounded border select-none flex flex-col relative group",
   variants: {
     isDragging: {
       true: "opacity-70 shadow-lg z-50",
@@ -19,6 +19,14 @@ const card = tv({
     isSelected: {
       true: "ring-2 ring-primary-500 border-primary-500",
     },
+    type: {
+      living: "bg-green-100 border-green-300 text-green-800",
+      working: "bg-blue-100 border-blue-300 text-blue-800",
+      feeling: "bg-amber-100 border-amber-300 text-amber-800",
+    },
+  },
+  defaultVariants: {
+    type: "working",
   },
 })
 
@@ -43,7 +51,7 @@ export default function CareerMapEventCard({
 }: CareerMapEventCardProps) {
   return (
     <div
-      className={card({ isDragging, isSelected })}
+      className={card({ isDragging, isSelected, type: event.type })}
       onClick={(e) => {
         e.stopPropagation()
         onSelect(e)

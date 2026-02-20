@@ -1,4 +1,5 @@
 export * from './careerEvent'
 export * from './careerMap'
 export * from './careerMapEventTag'
+export * from './careerMapVector'
 export * from './user'

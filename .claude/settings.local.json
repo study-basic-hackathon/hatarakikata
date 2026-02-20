@@ -11,7 +11,9 @@
       "Bash(cat:*)",
       "Bash(npm run build:*)",
       "Bash(npx eslint:*)",
-      "Bash(git -C /Users/seekseep/Development/github.com/study-basic-hackathon/hatarakikata status --short)"
+      "Bash(git -C /Users/seekseep/Development/github.com/study-basic-hackathon/hatarakikata status --short)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:toonformat.dev)"
     ]
   }
 }

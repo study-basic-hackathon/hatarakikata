@@ -107,6 +107,8 @@ export default function CareerMapEventDialog() {
     isLoadingTags,
   } = useCareerMapEventDialogForm()
 
+  const selectedType = form.watch("type")
+
   return (
     <Dialog open={open} onClose={closeDialog} className="w-full max-w-md">
       <FormProvider {...form}>
@@ -131,6 +133,30 @@ export default function CareerMapEventDialog() {
             label="名前"
             placeholder="例: 株式会社○○に入社"
           />
+
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-medium">種類</span>
+            <div className="flex gap-2">
+              {[
+                { value: "working", label: "学校と仕事", color: "bg-blue-100 border-blue-400 text-blue-800" },
+                { value: "living", label: "生活の出来事", color: "bg-green-100 border-green-400 text-green-800" },
+                { value: "feeling", label: "感じたこと", color: "bg-amber-100 border-amber-400 text-amber-800" },
+              ].map((option) => (
+                <label
+                  key={option.value}
+                  className={`flex-1 cursor-pointer rounded-md border-2 px-3 py-2 text-center text-sm font-medium transition-colors ${option.color} ${selectedType === option.value ? "ring-2 ring-offset-1" : "opacity-50"}`}
+                >
+                  <input
+                    type="radio"
+                    value={option.value}
+                    {...register("type")}
+                    className="sr-only"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </div>
 
           <TextAreaField
             label="説明"

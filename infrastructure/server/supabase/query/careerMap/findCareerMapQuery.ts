@@ -1,4 +1,4 @@
-import type { FindCareerMapQuery } from '@/core/application/service/query'
+import type { FindCareerMapQuery } from '@/core/application/port/query'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
 import { createSupabaseServer } from '../../client'

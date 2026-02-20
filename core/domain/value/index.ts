@@ -1,2 +1,5 @@
 export * from './careerMapAction'
+export * from './careerMapVector'
+export * from './eventPlacement'
 export * from './generateCareerEvent'
+export * from './similarCareerMap'

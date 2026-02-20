@@ -1,4 +1,4 @@
-import type { GetSession } from '@/core/application/service/auth'
+import type { GetSession } from '@/core/application/port/auth'
 import { succeed } from '@/core/util/appResult'
 
 import { getSupabaseBrowserClient } from '../client'

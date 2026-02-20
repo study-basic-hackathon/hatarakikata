@@ -6,6 +6,7 @@ export const CareerEventRowSchema = z.object({
   id: z.string(),
   career_map_id: z.string(),
   name: z.string(),
+  type: z.enum(["living", "working", "feeling"]),
   start_date: z.string(),
   end_date: z.string(),
   strength: z.number().int().min(1).max(5),

@@ -6,6 +6,7 @@ export const GenerateCareerEventQuestionSchema = z.object({
 
 export const GeneratedCareerEventParameterSchema = z.object({
   name: z.string().default(""),
+  type: z.enum(["living", "working", "feeling"]).default("working"),
   startDate: z.string(),
   endDate: z.string(),
   tags: z.array(z.string()).default([]),

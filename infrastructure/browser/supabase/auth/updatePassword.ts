@@ -1,4 +1,4 @@
-import type { UpdatePassword } from '@/core/application/service/auth'
+import type { UpdatePassword } from '@/core/application/port/auth'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
 import { getSupabaseBrowserClient } from '../client'

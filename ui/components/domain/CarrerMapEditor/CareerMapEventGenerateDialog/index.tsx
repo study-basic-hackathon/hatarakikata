@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
+import { RiMic2Fill, RiMic2Line } from "react-icons/ri"
 import { RxCross2 } from "react-icons/rx"
 
 import Alert from "@/ui/components/basic/Alert"
@@ -8,6 +9,7 @@ import Button from "@/ui/components/basic/Button"
 import Dialog from "@/ui/components/basic/dialog/Dialog"
 import TextAreaField from "@/ui/components/basic/field/TextAreaField"
 import { useGenerateCareerEventsMutation } from "@/ui/hooks/careerEvent"
+import { useSpeechRecognition } from "@/ui/hooks/useSpeechRecognition"
 
 import { useCarrerMapEditorContext } from "../hooks/CarrerMapEditorContext"
 
@@ -42,8 +44,14 @@ export default function CareerMapEventGenerateDialog() {
 
   const generateMutation = useGenerateCareerEventsMutation()
 
+  const handleSpeechResult = useCallback((text: string) => {
+    setInput((prev) => prev + text)
+  }, [])
+  const { isListening, isSupported, audioLevels, start: startListening, stop: stopListening } = useSpeechRecognition(handleSpeechResult)
+
   const handleClose = () => {
     if (generateMutation.isPending) return
+    stopListening()
     setInput("")
     setNextQuestion(null)
     setErrorMessage(null)
@@ -55,6 +63,7 @@ export default function CareerMapEventGenerateDialog() {
     const trimmed = input.trim()
     if (!trimmed || generateMutation.isPending) return
 
+    stopListening()
     setErrorMessage(null)
 
     try {
@@ -96,14 +105,47 @@ export default function CareerMapEventGenerateDialog() {
             <div className="w-7" />
           </div>
 
-          <TextAreaField
-            label="自由入力"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            rows={4}
-            placeholder={nextQuestion ? `次の質問: ${nextQuestion}` : "例: 大学卒業後にIT企業に入社してPMになった"}
-            disabled={generateMutation.isPending}
-          />
+          <div>
+            <TextAreaField
+              label="自由入力"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              rows={4}
+              placeholder={nextQuestion ? `次の質問: ${nextQuestion}` : "例: 大学卒業後にIT企業に入社してPMになった"}
+              disabled={generateMutation.isPending}
+            />
+            {isSupported && (
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={generateMutation.isPending}
+                  className={`shrink-0 rounded-full p-2 transition-colors ${
+                    isListening
+                      ? "bg-red-100 text-red-600 hover:bg-red-200"
+                      : "text-foreground/60 hover:bg-foreground/10"
+                  } disabled:opacity-40`}
+                  aria-label={isListening ? "音声入力を停止" : "音声入力を開始"}
+                >
+                  {isListening ? <RiMic2Fill size={20} /> : <RiMic2Line size={20} />}
+                </button>
+                {isListening && (
+                  <div className="flex h-6 items-end gap-px">
+                    {audioLevels.map((level, i) => (
+                      <div
+                        key={i}
+                        className="w-1 rounded-full bg-red-400"
+                        style={{
+                          height: `${Math.max(8, level * 100)}%`,
+                          transition: "height 80ms ease-out",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {nextQuestion && (
             <p className="text-sm text-foreground/70">次の質問: {nextQuestion}</p>

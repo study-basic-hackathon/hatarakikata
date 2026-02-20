@@ -2,7 +2,7 @@ import { PagedCareerMapEventTags } from "@/core/domain"
 import { AppResult, failAsForbiddenError } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { ListCareerMapEventTagsQuery } from "../../service/query"
+import { ListCareerMapEventTagsQuery } from "../../port/query"
 
 export type ListCareerMapEventTags = (
   executor: Executor

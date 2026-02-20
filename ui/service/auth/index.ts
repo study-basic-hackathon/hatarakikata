@@ -1,2 +1,2 @@
-export * from '@/core/application/service/auth'
+export * from '@/core/application/port/auth'
 export * from '@/infrastructure/browser/supabase/auth'

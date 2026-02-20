@@ -25,6 +25,7 @@ create table career_events (
   id uuid primary key default gen_random_uuid(),
   career_map_id uuid not null references career_maps(id) on delete cascade,
   name text not null default '',
+  type text not null default 'working' check (type in ('living', 'working', 'feeling')),
   start_date text not null,
   end_date text not null,
   strength integer not null default 3 check (strength >= 1 and strength <= 5),
@@ -62,22 +63,21 @@ create table career_map_vectors (
 
 create index career_map_vectors_embedding_idx on career_map_vectors using ivfflat (embedding vector_cosine_ops) with (lists = 100);
 
+-- Match career map vectors by cosine similarity
 create or replace function match_career_map_vectors(
   query_embedding vector(1536),
   match_count int,
-  match_id uuid
+  exclude_career_map_id uuid
 )
-returns table(
-  career_map_id uuid,
-  similarity float,
-  tag_weights jsonb
-)
-language sql stable as $$
-  select career_map_id,
-         1 - (embedding <=> query_embedding) as similarity,
-         tag_weights
-    from career_map_vectors
-   where career_map_id <> match_id
-   order by embedding <=> query_embedding
-   limit match_count;
+returns table (career_map_id uuid, similarity float, tag_weights jsonb)
+language sql
+as $$
+  select
+    v.career_map_id,
+    1 - (v.embedding <=> query_embedding) as similarity,
+    v.tag_weights
+  from career_map_vectors v
+  where v.career_map_id != exclude_career_map_id
+  order by v.embedding <=> query_embedding
+  limit match_count;
 $$;

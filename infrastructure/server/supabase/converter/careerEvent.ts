@@ -7,11 +7,13 @@ export function careerEventRowToEntity(row: CareerEventWithTagsRow): CareerEvent
     id: row.id,
     careerMapId: row.career_map_id,
     name: row.name,
+    type: row.type,
     startDate: row.start_date,
     endDate: row.end_date,
-    tags: (row.career_map_event_tag_attachments ?? []).map(
-      (a) => a.career_map_event_tags.id
-    ),
+    tags: (row.career_map_event_tag_attachments ?? []).map((a) => ({
+      id: a.career_map_event_tags.id,
+      name: a.career_map_event_tags.name,
+    })),
     strength: row.strength,
     row: row.row,
     description: row.description,
@@ -23,6 +25,7 @@ export function careerEventEntityToRow(entity: CareerEvent): Record<string, unkn
     id: entity.id,
     career_map_id: entity.careerMapId,
     name: entity.name,
+    type: entity.type,
     start_date: entity.startDate,
     end_date: entity.endDate,
     strength: entity.strength,

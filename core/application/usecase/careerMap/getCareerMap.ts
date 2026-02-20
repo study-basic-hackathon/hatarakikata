@@ -4,7 +4,7 @@ import { CareerMap } from "@/core/domain"
 import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { FindCareerMapQuery, FindCareerMapQueryParametersSchema } from "../../service/query"
+import { FindCareerMapQuery, FindCareerMapQueryParametersSchema } from "../../port/query"
 
 const GetCareerMapParametersSchema = FindCareerMapQueryParametersSchema
 

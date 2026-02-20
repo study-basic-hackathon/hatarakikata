@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 
-import type { CareerEventPayload } from "@/core/domain"
+import type { CareerEventPayload, CareerEventType } from "@/core/domain"
 import { useCareerMapEventTagsQuery } from "@/ui/hooks/careerMapEventTag"
 
 import { useCarrerMapEditorContext } from "../hooks/CarrerMapEditorContext"
@@ -9,6 +9,7 @@ import { fromMonth,toMonth } from "./utils"
 
 type FormValues = {
   name: string
+  type: string
   startMonth: string
   endMonth: string
   strength: number
@@ -33,6 +34,7 @@ export function useCareerMapEventDialogForm() {
   const form = useForm<FormValues>({
     defaultValues: {
       name: "",
+      type: "working",
       startMonth: "",
       endMonth: "",
       strength: 3,
@@ -55,16 +57,18 @@ export function useCareerMapEventDialogForm() {
     if (open && mode === "edit" && event) {
       reset({
         name: event.name ?? "",
+        type: event.type ?? "working",
         startMonth: toMonth(event.startDate),
         endMonth: toMonth(event.endDate),
         strength: event.strength ?? 3,
         description: event.description ?? "",
-        tags: event.tags ?? [],
+        tags: (event.tags ?? []).map((t) => t.id),
       })
     } else if (open && mode === "create") {
       const prefill = dialogState.mode === "create" ? dialogState.prefill : undefined
       reset({
         name: "",
+        type: "working",
         startMonth: toMonth(prefill?.startDate ?? ""),
         endMonth: toMonth(prefill?.endDate ?? ""),
         strength: 3,
@@ -80,6 +84,7 @@ export function useCareerMapEventDialogForm() {
     const payload: CareerEventPayload = {
       careerMapId,
       name: values.name,
+      type: values.type as CareerEventType,
       startDate: fromMonth(values.startMonth),
       endDate: fromMonth(values.endMonth),
       strength: Number(values.strength),
@@ -89,7 +94,8 @@ export function useCareerMapEventDialogForm() {
     }
 
     if (mode === "edit" && event) {
-      updateEvent({ ...event, ...payload })
+      const tagNameMap = new Map(availableTags.map((t) => [t.id, t.name]))
+      updateEvent({ ...event, ...payload, tags: tags.map((id) => ({ id, name: tagNameMap.get(id) ?? id })) })
     } else {
       createEvent(payload)
     }

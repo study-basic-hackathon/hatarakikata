@@ -1,4 +1,4 @@
-import type { GenerateCareerEventsOperation } from "@/core/application/service/operation"
+import type { GenerateCareerEventsOperation } from "@/core/application/port/operation"
 import type { GenerateCareerEventsResult } from "@/core/domain"
 import { failAsExternalServiceError, succeed } from "@/core/util/appResult"
 

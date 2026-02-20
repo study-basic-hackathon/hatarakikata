@@ -4,8 +4,8 @@ import { CareerEvent } from "@/core/domain"
 import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { UpdateCareerEventCommand, UpdateCareerEventCommandParametersSchema } from "../../service/command"
-import { FindCareerEventQuery, FindCareerMapQuery } from "../../service/query"
+import { UpdateCareerEventCommand, UpdateCareerEventCommandParametersSchema } from "../../port/command"
+import { FindCareerEventQuery, FindCareerMapQuery } from "../../port/query"
 
 const UpdateCareerEventParametersSchema = UpdateCareerEventCommandParametersSchema
 

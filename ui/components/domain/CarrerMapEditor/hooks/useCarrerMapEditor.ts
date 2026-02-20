@@ -192,7 +192,7 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
   const handleCreateEvent = useCallback(
     (payload: CareerEventPayload) => {
       const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`
-      const tempEvent = { ...payload, id: tempId } as CareerEvent
+      const tempEvent = { ...payload, id: tempId, tags: payload.tags.map((id) => ({ id, name: id })) } as CareerEvent
       setLocalEvents((prev) => [...prev, tempEvent])
       setError(undefined)
 
@@ -221,9 +221,9 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
       setLocalEvents((prev) => prev.map((e) => (e.id === event.id ? event : e)))
       setError(undefined)
 
-      const { id, ...body } = event
+      const { id, tags, ...body } = event
       updateCareerEventMutation.mutate(
-        { id, ...body },
+        { id, ...body, tags: tags.map((t) => t.id) },
         {
           onError: (err) => {
             setError(err instanceof Error ? err : new Error(String(err)))

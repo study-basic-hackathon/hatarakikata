@@ -2,8 +2,8 @@ import { User } from "@/core/domain"
 import { AppResult, failAsForbiddenError,failAsInvalidParametersError } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { CreateCareerMapCommand,CreateUserCommand } from "../../service/command"
-import { FindUserQuery } from "../../service/query"
+import { CreateCareerMapCommand,CreateUserCommand } from "../../port/command"
+import { FindUserQuery } from "../../port/query"
 
 export type Initialize = (
   executor: Executor

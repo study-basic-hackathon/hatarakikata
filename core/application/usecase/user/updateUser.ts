@@ -4,8 +4,8 @@ import { User } from "@/core/domain"
 import { AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError } from "@/core/util/appResult"
 
 import { Executor } from "../../executor"
-import { UpdateUserCommand, UpdateUserCommandParametersSchema } from "../../service/command"
-import { FindUserQuery } from "../../service/query"
+import { UpdateUserCommand, UpdateUserCommandParametersSchema } from "../../port/command"
+import { FindUserQuery } from "../../port/query"
 
 const UpdateUserParametersSchema = UpdateUserCommandParametersSchema
 

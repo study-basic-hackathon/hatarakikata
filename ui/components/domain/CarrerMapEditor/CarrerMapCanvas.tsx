@@ -135,7 +135,7 @@ export default function CarrerMapCanvas() {
             >
               <CareerMapEventCard
                 event={event}
-                tagNames={(event.tags ?? []).map((id) => tagMap.get(id)).filter((n): n is string => !!n)}
+                tagNames={(event.tags ?? []).map((t) => t.name)}
                 isDragging={isDragging}
                 isSelected={selectedEventIds.has(event.id)}
                 onSelect={(e: React.MouseEvent) => selectEvent(event.id, e.shiftKey)}

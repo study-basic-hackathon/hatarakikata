@@ -11,9 +11,9 @@ export function formatEvents(events: CareerEvent[]): string {
   if (events.length === 0) return "(no events)"
   return events
     .map((e) => {
-      const tags = e.tags?.length ? e.tags.join(", ") : "-"
+      const tags = e.tags?.length ? e.tags.map((t) => t.name).join(", ") : "-"
       const desc = e.description ? e.description.replace(/\s+/g, " ") : "-"
-      return `- ${e.startDate} to ${e.endDate} | ${e.name} | strength=${e.strength} | row=${e.row} | tags=${tags} | description=${desc}`
+      return `- ${e.startDate} to ${e.endDate} | ${e.name} | type=${e.type ?? 'working'} | strength=${e.strength} | row=${e.row} | tags=${tags} | description=${desc}`
     })
     .join("\n")
 }
@@ -26,8 +26,10 @@ export function normalizeEvents(
   const validTagIds = new Set(tags.map((t) => t.id))
   const tagIdByName = new Map(tags.map((t) => [t.name, t.id]))
 
+  const validTypes = ["living", "working", "feeling"] as const
   return events.map((e) => ({
     name: e.name ?? "新しいイベント",
+    type: validTypes.includes(e.type as typeof validTypes[number]) ? e.type : "working",
     startDate: ensureDate(e.startDate, fallbackDate),
     endDate: ensureDate(e.endDate, fallbackDate),
     tags: Array.isArray(e.tags)

@@ -1,11 +1,11 @@
-import type { CreateCareerEventCommand } from '@/core/application/service/command'
+import type { CreateCareerEventCommand } from '@/core/application/port/command'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
 import { createSupabaseServer } from '../../client'
 import { careerEventRowToEntity } from '../../converter'
 import type { CareerEventWithTagsRow } from '../../schemas'
 
-const CAREER_EVENT_SELECT_WITH_TAGS = 'id, career_map_id, name, start_date, end_date, strength, row, description, career_map_event_tag_attachments(career_map_event_tags(id, name))'
+const CAREER_EVENT_SELECT_WITH_TAGS = 'id, career_map_id, name, type, start_date, end_date, strength, row, description, career_map_event_tag_attachments(career_map_event_tags(id, name))'
 
 export const createCareerEventCommand: CreateCareerEventCommand = async (params) => {
   const supabase = await createSupabaseServer()
@@ -14,6 +14,7 @@ export const createCareerEventCommand: CreateCareerEventCommand = async (params)
     .insert({
       career_map_id: params.careerMapId,
       name: params.name,
+      type: params.type ?? 'working',
       start_date: params.startDate,
       end_date: params.endDate,
       strength: params.strength,

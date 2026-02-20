@@ -2,6 +2,9 @@ import z from "zod"
 
 import { createPagedItemsSchema } from "@/core/domain/schema"
 
+export const CareerEventTypeSchema = z.enum(["living", "working", "feeling"])
+export type CareerEventType = z.infer<typeof CareerEventTypeSchema>
+
 export const CareerEventKeySchema = z.object({
   id: z.string(),
 })
@@ -9,6 +12,7 @@ export const CareerEventKeySchema = z.object({
 export const CareerEventPayloadBaseSchema = z.object({
   careerMapId: z.string(),
   name: z.string().default(""),
+  type: CareerEventTypeSchema.default("working"),
   startDate: z.string(),
   endDate: z.string(),
   tags: z.array(z.string()),
@@ -19,7 +23,14 @@ export const CareerEventPayloadBaseSchema = z.object({
 
 export const CareerEventPayloadSchema = CareerEventPayloadBaseSchema
 
-export const CareerEventSchema = CareerEventKeySchema.extend(CareerEventPayloadBaseSchema.shape)
+export const CareerEventTagSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+})
+
+export const CareerEventSchema = CareerEventKeySchema.extend(CareerEventPayloadBaseSchema.shape).extend({
+  tags: z.array(CareerEventTagSchema),
+})
 export type CareerEvent = z.infer<typeof CareerEventSchema>
 export type CareerEventPayload = z.infer<typeof CareerEventPayloadSchema>
 

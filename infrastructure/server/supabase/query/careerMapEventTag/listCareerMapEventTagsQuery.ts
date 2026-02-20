@@ -1,4 +1,4 @@
-import type { ListCareerMapEventTagsQuery } from '@/core/application/service/query'
+import type { ListCareerMapEventTagsQuery } from '@/core/application/port/query'
 import { failAsExternalServiceError,succeed } from '@/core/util/appResult'
 
 import { createSupabaseServer } from '../../client'

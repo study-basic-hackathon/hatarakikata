@@ -1,7 +1,9 @@
 import { makeGetCareerMap } from '@/core/application/usecase/careerMap/getCareerMap'
+import { makeReindexAllCareerMapVectors } from '@/core/application/usecase/careerMap/reindexAllCareerMapVectors'
 import { makeUpdateCareerMap } from '@/core/application/usecase/careerMap/updateCareerMap'
-import { updateCareerMapCommand } from '@/infrastructure/server/supabase/command'
-import { findCareerMapQuery } from '@/infrastructure/server/supabase/query'
+import { createEmbeddingOperation } from '@/infrastructure/server/ai/operation'
+import { updateCareerMapCommand, upsertCareerMapVectorCommand } from '@/infrastructure/server/supabase/command'
+import { findCareerMapQuery, listAllCareerMapIdsQuery, listCareerEventsForVectorAdminQuery } from '@/infrastructure/server/supabase/query'
 
 export const getCareerMap = makeGetCareerMap({
   findCareerMapQuery,
@@ -10,4 +12,11 @@ export const getCareerMap = makeGetCareerMap({
 export const updateCareerMap = makeUpdateCareerMap({
   updateCareerMapCommand,
   findCareerMapQuery,
+})
+
+export const reindexAllCareerMapVectors = makeReindexAllCareerMapVectors({
+  listAllCareerMapIdsQuery,
+  listCareerEventsForVectorQuery: listCareerEventsForVectorAdminQuery,
+  createEmbeddingOperation,
+  upsertCareerMapVectorCommand,
 })
