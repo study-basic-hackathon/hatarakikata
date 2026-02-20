@@ -2,6 +2,7 @@ import { z } from "zod"
 
 import type { Executor } from "@/core/application/executor"
 import type { CreateCareerEventCommand } from "@/core/application/port/command"
+import type { UpdateCareerEventCommand } from "@/core/application/port/command/careerEvent/updateCareerEventCommand"
 import type { GenerateCareerEventsOperation } from "@/core/application/port/operation"
 import type { FindCareerMapQuery, ListCareerMapEventTagsQuery } from "@/core/application/port/query"
 import type { CareerEvent } from "@/core/domain"
@@ -12,6 +13,7 @@ const GenerateCareerEventsParametersSchema = z.object({
   careerMapId: z.string(),
   input: z.string().min(1),
   currentEvents: z.array(CareerEventSchema).optional().default([]),
+  previousQuestion: z.string().nullable().optional().default(null),
 })
 
 export type GenerateCareerEventsParametersInput = z.input<
@@ -22,8 +24,12 @@ export type GenerateCareerEventsParameters = z.infer<
   typeof GenerateCareerEventsParametersSchema
 >
 
+type GenerateCareerEventsUsecaseAction =
+  | { type: "create"; event: CareerEvent }
+  | { type: "update"; event: CareerEvent }
+
 type GenerateCareerEventsUsecaseResult = {
-  events: CareerEvent[]
+  actions: GenerateCareerEventsUsecaseAction[]
   nextQuestion: { content: string } | null
 }
 
@@ -35,6 +41,7 @@ export type GenerateCareerEventsUsecase = (
 export type MakeGenerateCareerEventsDependencies = {
   generateCareerEvents: GenerateCareerEventsOperation
   createCareerEventCommand: CreateCareerEventCommand
+  updateCareerEventCommand: UpdateCareerEventCommand
   findCareerMapQuery: FindCareerMapQuery
   listCareerMapEventTagsQuery: ListCareerMapEventTagsQuery
 }
@@ -42,6 +49,7 @@ export type MakeGenerateCareerEventsDependencies = {
 export function makeGenerateCareerEvents({
   generateCareerEvents,
   createCareerEventCommand,
+  updateCareerEventCommand,
   findCareerMapQuery,
   listCareerMapEventTagsQuery,
 }: MakeGenerateCareerEventsDependencies): GenerateCareerEventsUsecase {
@@ -72,6 +80,7 @@ export function makeGenerateCareerEvents({
 
     const generateResult = await generateCareerEvents({
       question: parameters.input,
+      previousQuestion: parameters.previousQuestion ?? null,
       content: parameters.currentEvents ?? [],
       map: careerMap,
       tags,
@@ -79,19 +88,56 @@ export function makeGenerateCareerEvents({
 
     if (!generateResult.success) return generateResult
 
-    const createdEvents = await Promise.all(
-      generateResult.data.events.map(async (generated) => {
-        const result = await createCareerEventCommand({
-          careerMapId: parameters.careerMapId,
-          ...generated,
-        })
-        if (!result.success) throw new Error(`Failed to create event: ${result.error.message}`)
-        return result.data
-      })
+    const tagIdByName = new Map(tags.map((t) => [t.name, t.id]))
+    const tagNameById = new Map(tags.map((t) => [t.id, t.name]))
+    const currentEventsById = new Map(
+      (parameters.currentEvents ?? []).map((e) => [e.id, e])
     )
 
+    const resultActions: GenerateCareerEventsUsecaseAction[] = []
+
+    for (const action of generateResult.data.actions) {
+      if (action.type === "create") {
+        const { tagNames, ...rest } = action.payload
+        const result = await createCareerEventCommand({
+          careerMapId: parameters.careerMapId,
+          ...rest,
+          tags: tagNames.map((name) => tagIdByName.get(name)).filter((id): id is string => Boolean(id)),
+        })
+        if (!result.success) throw new Error(`Failed to create event: ${result.error.message}`)
+        resultActions.push({ type: "create", event: result.data })
+      } else {
+        const existing = currentEventsById.get(action.payload.id)
+        if (!existing) continue // skip if event not found
+
+        const { id, tagNames, ...updates } = action.payload
+        const tagIds = tagNames
+          ? tagNames.map((name) => tagIdByName.get(name)).filter((tid): tid is string => Boolean(tid))
+          : undefined
+
+        await updateCareerEventCommand({
+          id,
+          ...updates,
+          ...(tagIds !== undefined ? { tags: tagIds } : {}),
+        })
+
+        // Merge existing event with updates for UI
+        const mergedTags = tagIds
+          ? tagIds.map((tid) => ({ id: tid, name: tagNameById.get(tid) ?? tid }))
+          : existing.tags
+
+        const mergedEvent: CareerEvent = {
+          ...existing,
+          ...updates,
+          tags: mergedTags,
+        }
+
+        resultActions.push({ type: "update", event: mergedEvent })
+      }
+    }
+
     return succeed({
-      events: createdEvents,
+      actions: resultActions,
       nextQuestion: generateResult.data.nextQuestion,
     })
   }

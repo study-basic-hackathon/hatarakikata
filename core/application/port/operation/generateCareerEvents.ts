@@ -5,6 +5,7 @@ import type { AppResult } from "@/core/util/appResult"
 
 export const GenerateCareerEventsOperationParametersSchema = z.object({
   question: z.string(),
+  previousQuestion: z.string().nullable(),
   content: z.array(CareerEventSchema),
   map: CareerMapSchema,
   tags: z.array(z.object({ id: z.string(), name: z.string() })),

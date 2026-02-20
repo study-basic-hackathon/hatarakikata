@@ -3,7 +3,7 @@ import type { GenerateCareerEventsResult } from "@/core/domain"
 import { failAsExternalServiceError, succeed } from "@/core/util/appResult"
 
 import { createOpenAIClient } from "../../client"
-import { normalizeEvents } from "../../converter"
+import { normalizeActions } from "../../converter"
 import { buildPrompt } from "./prompt"
 
 const MODEL = process.env.OPENAI_MODEL ?? "gpt-4.1-nano"
@@ -12,15 +12,17 @@ export const generateCareerEvents: GenerateCareerEventsOperation = async (parame
   const today = new Date().toISOString().slice(0, 10)
   const fallbackDate = parameters.map.startDate ?? today
 
-  try {
-    const prompt = buildPrompt(
-      parameters.question,
-      parameters.map.startDate ?? "",
-      parameters.content,
-      parameters.tags
-    )
+  const prompt = buildPrompt(
+    parameters.question,
+    parameters.previousQuestion,
+    parameters.map.startDate ?? "",
+    parameters.content,
+    parameters.tags
+  )
 
-    const client = createOpenAIClient()
+  const client = createOpenAIClient()
+
+  try {
     const response = await client.responses.create({
       model: MODEL,
       input: prompt,
@@ -31,10 +33,10 @@ export const generateCareerEvents: GenerateCareerEventsOperation = async (parame
     if (!text) return failAsExternalServiceError("OpenAI returned empty response")
 
     const parsed = JSON.parse(text) as GenerateCareerEventsResult
-    const events = normalizeEvents(parsed.events ?? [], fallbackDate, parameters.tags)
+    const actions = normalizeActions(parsed.actions ?? [], fallbackDate, parameters.tags)
     const nextQuestion = parsed.nextQuestion ? { content: parsed.nextQuestion.content } : null
 
-    return succeed({ events, nextQuestion })
+    return succeed({ actions, nextQuestion })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     return failAsExternalServiceError(message, error)

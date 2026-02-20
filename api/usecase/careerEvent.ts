@@ -38,6 +38,7 @@ export const listCareerEventsByCareerMapId = makeListCareerEventsByCareerMapId({
 export const generateCareerEvents = makeGenerateCareerEvents({
   generateCareerEvents: generateCareerEventsAi,
   createCareerEventCommand,
+  updateCareerEventCommand,
   findCareerMapQuery,
   listCareerMapEventTagsQuery,
 })

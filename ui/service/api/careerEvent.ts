@@ -8,8 +8,12 @@ import type { CareerEvent, PagedCareerEvents } from '@/core/domain'
 
 import { apiFetch } from './client'
 
+export type GenerateCareerEventsResponseAction =
+  | { type: 'create'; event: CareerEvent }
+  | { type: 'update'; event: CareerEvent }
+
 export type GenerateCareerEventsResponse = {
-  events: CareerEvent[]
+  actions: GenerateCareerEventsResponseAction[]
   nextQuestion: { content: string } | null
 }
 

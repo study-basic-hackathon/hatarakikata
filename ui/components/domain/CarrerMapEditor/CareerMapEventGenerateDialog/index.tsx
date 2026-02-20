@@ -1,32 +1,23 @@
 "use client"
 
-import { useCallback, useState } from "react"
-import { RiMic2Fill, RiMic2Line } from "react-icons/ri"
+import { useCallback } from "react"
+import { useForm } from "react-hook-form"
 import { RxCross2 } from "react-icons/rx"
 
 import Alert from "@/ui/components/basic/Alert"
+import AudioLevelMeter from "@/ui/components/basic/AudioLevelMeter"
 import Button from "@/ui/components/basic/Button"
 import Dialog from "@/ui/components/basic/dialog/Dialog"
 import TextAreaField from "@/ui/components/basic/field/TextAreaField"
+import SpeechRecognitionButton from "@/ui/components/basic/SpeechRecognitionButton"
+import ThinkingOverlay from "@/ui/components/basic/ThinkingOverlay"
 import { useGenerateCareerEventsMutation } from "@/ui/hooks/careerEvent"
 import { useSpeechRecognition } from "@/ui/hooks/useSpeechRecognition"
 
 import { useCarrerMapEditorContext } from "../hooks/CarrerMapEditorContext"
 
-function ThinkingOverlay() {
-  return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg bg-background/80 backdrop-blur-sm">
-      <span className="text-5xl animate-bounce">🤖</span>
-      <div className="flex items-center gap-1">
-        <span className="text-sm font-medium text-foreground/70">AIが考え中</span>
-        <span className="inline-flex gap-0.5">
-          <span className="size-1.5 rounded-full bg-foreground/50 animate-[pulse_1.4s_ease-in-out_infinite]" />
-          <span className="size-1.5 rounded-full bg-foreground/50 animate-[pulse_1.4s_ease-in-out_0.2s_infinite]" />
-          <span className="size-1.5 rounded-full bg-foreground/50 animate-[pulse_1.4s_ease-in-out_0.4s_infinite]" />
-        </span>
-      </div>
-    </div>
-  )
+type FormValues = {
+  input: string
 }
 
 export default function CareerMapEventGenerateDialog() {
@@ -34,63 +25,70 @@ export default function CareerMapEventGenerateDialog() {
     careerMapId,
     events,
     addEvents,
+    updateEvent,
     generateDialogOpen,
     closeGenerateDialog,
   } = useCarrerMapEditorContext()
 
-  const [input, setInput] = useState("")
-  const [nextQuestion, setNextQuestion] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { register, handleSubmit, setValue, getValues, reset } = useForm<FormValues>({
+    defaultValues: { input: "" },
+  })
 
   const generateMutation = useGenerateCareerEventsMutation()
 
   const handleSpeechResult = useCallback((text: string) => {
-    setInput((prev) => prev + text)
-  }, [])
+    setValue("input", getValues("input") + text)
+  }, [setValue, getValues])
   const { isListening, isSupported, audioLevels, start: startListening, stop: stopListening } = useSpeechRecognition(handleSpeechResult)
 
   const handleClose = () => {
     if (generateMutation.isPending) return
     stopListening()
-    setInput("")
-    setNextQuestion(null)
-    setErrorMessage(null)
+    reset()
     closeGenerateDialog()
   }
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const trimmed = input.trim()
+  const onSubmit = async (data: FormValues) => {
+    const trimmed = data.input.trim()
     if (!trimmed || generateMutation.isPending) return
 
     stopListening()
-    setErrorMessage(null)
 
     try {
       const result = await generateMutation.mutateAsync({
         careerMapId,
         input: trimmed,
         currentEvents: events,
+        previousQuestion: nextQuestion,
       })
 
-      addEvents(result.events)
+      const createdEvents = result.actions
+        .filter((a) => a.type === "create")
+        .map((a) => a.event)
+      const updatedEvents = result.actions
+        .filter((a) => a.type === "update")
+        .map((a) => a.event)
 
-      setInput("")
-      setNextQuestion(result.nextQuestion?.content ?? null)
+      if (createdEvents.length > 0) addEvents(createdEvents)
+      for (const event of updatedEvents) updateEvent(event)
+
+      reset()
 
       if (!result.nextQuestion) {
         handleClose()
       }
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : String(error))
+    } catch {
+      // error is handled by generateMutation.error
     }
   }
+
+  const nextQuestion = generateMutation.data?.nextQuestion?.content ?? null
 
   return (
     <Dialog open={generateDialogOpen} onClose={handleClose} className="w-full max-w-md">
       <div className="relative">
         {generateMutation.isPending && <ThinkingOverlay />}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -108,40 +106,21 @@ export default function CareerMapEventGenerateDialog() {
           <div>
             <TextAreaField
               label="自由入力"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              {...register("input", { required: true })}
               rows={4}
               placeholder={nextQuestion ? `次の質問: ${nextQuestion}` : "例: 大学卒業後にIT企業に入社してPMになった"}
               disabled={generateMutation.isPending}
             />
             {isSupported && (
               <div className="mt-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={isListening ? stopListening : startListening}
+                <SpeechRecognitionButton
+                  isListening={isListening}
                   disabled={generateMutation.isPending}
-                  className={`shrink-0 rounded-full p-2 transition-colors ${
-                    isListening
-                      ? "bg-red-100 text-red-600 hover:bg-red-200"
-                      : "text-foreground/60 hover:bg-foreground/10"
-                  } disabled:opacity-40`}
-                  aria-label={isListening ? "音声入力を停止" : "音声入力を開始"}
-                >
-                  {isListening ? <RiMic2Fill size={20} /> : <RiMic2Line size={20} />}
-                </button>
+                  onStart={startListening}
+                  onStop={stopListening}
+                />
                 {isListening && (
-                  <div className="flex h-6 items-end gap-px">
-                    {audioLevels.map((level, i) => (
-                      <div
-                        key={i}
-                        className="w-1 rounded-full bg-red-400"
-                        style={{
-                          height: `${Math.max(8, level * 100)}%`,
-                          transition: "height 80ms ease-out",
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <AudioLevelMeter levels={audioLevels} />
                 )}
               </div>
             )}
@@ -151,12 +130,21 @@ export default function CareerMapEventGenerateDialog() {
             <p className="text-sm text-foreground/70">次の質問: {nextQuestion}</p>
           )}
 
-          {errorMessage && (
-            <Alert variant="error">{errorMessage}</Alert>
+          {generateMutation.error && (
+            <Alert variant="error">
+              {generateMutation.error instanceof Error
+                ? generateMutation.error.message
+                : String(generateMutation.error)}
+            </Alert>
           )}
 
           <div className="flex justify-end">
-            <Button type="submit" variant="primary" size="medium" disabled={generateMutation.isPending}>
+            <Button
+              type="submit"
+              variant="primary"
+              size="medium"
+              disabled={generateMutation.isPending}
+            >
               {generateMutation.isPending ? "生成中..." : "生成"}
             </Button>
           </div>
