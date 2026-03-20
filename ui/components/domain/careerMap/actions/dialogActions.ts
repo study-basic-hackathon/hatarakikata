@@ -10,7 +10,7 @@ import type {
   OpenCreateDialogAction,
   OpenEditDialogAction,
   OpenGenerateDialogAction,
-  OpenJsonImportDialogAction,
+
   OpenQuestionAnswerDialogAction,
   OpenQuestionsDrawerAction,
   OpenSearchDrawerAction,
@@ -33,10 +33,6 @@ export function openGenerateDialog(): OpenGenerateDialogAction {
 
 export function openSearchDrawer(): OpenSearchDrawerAction {
   return { type: 'OPEN_SEARCH_DRAWER' }
-}
-
-export function openJsonImportDialog(): OpenJsonImportDialogAction {
-  return { type: 'OPEN_JSON_IMPORT_DIALOG' }
 }
 
 export function openViewer(careerMapId: string, userName?: string): OpenViewerAction {

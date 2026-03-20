@@ -1,4 +1,3 @@
-export * from './careerData'
 export * from './careerEvent'
 export * from './careerGuide'
 export * from './careerMap'

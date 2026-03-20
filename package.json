@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "import-users": "tsx cli/importUsers.ts",
-    "import-users:all": "tsx cli/importUsers.ts --all",
+
     "delete-users": "tsx cli/deleteUsers.ts",
     "delete-users:all": "tsx cli/deleteUsers.ts --all",
     "readjust-rows": "tsx cli/readjustRows.ts",

@@ -41,8 +41,6 @@ export type OpenGenerateDialogAction = { type: 'OPEN_GENERATE_DIALOG' }
 
 export type OpenSearchDrawerAction = { type: 'OPEN_SEARCH_DRAWER' }
 
-export type OpenJsonImportDialogAction = { type: 'OPEN_JSON_IMPORT_DIALOG' }
-
 export type OpenViewerAction = { type: 'OPEN_VIEWER'; careerMapId: string; userName?: string }
 
 export type OpenQuestionsDrawerAction = { type: 'OPEN_QUESTIONS_DRAWER' }
@@ -105,7 +103,7 @@ export type EditorAction =
   | OpenEditDialogAction
   | OpenGenerateDialogAction
   | OpenSearchDrawerAction
-  | OpenJsonImportDialogAction
+
   | OpenViewerAction
   | OpenQuestionsDrawerAction
   | OpenQuestionAnswerDialogAction

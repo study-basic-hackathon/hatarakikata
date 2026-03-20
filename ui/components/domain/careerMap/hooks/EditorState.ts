@@ -40,7 +40,6 @@ export type CreateDialogMode = { type: 'create-dialog'; prefill?: CreatePrefill 
 export type EditDialogMode = { type: 'edit-dialog'; event: CareerEvent }
 export type GenerateDialogMode = { type: 'generate-dialog' }
 export type SearchDrawerMode = { type: 'search-drawer' }
-export type JsonImportDialogMode = { type: 'json-import-dialog' }
 export type ViewerMode = { type: 'viewer'; careerMapId: string; userName?: string }
 export type QuestionsDrawerMode = { type: 'questions-drawer' }
 export type QuestionAnswerDialogMode = { type: 'question-answer-dialog'; question: CareerQuestion }
@@ -60,7 +59,7 @@ export type EditorMode =
   | EditDialogMode
   | GenerateDialogMode
   | SearchDrawerMode
-  | JsonImportDialogMode
+
   | ViewerMode
   | QuestionsDrawerMode
   | QuestionAnswerDialogMode

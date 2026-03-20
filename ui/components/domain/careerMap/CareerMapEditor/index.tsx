@@ -11,6 +11,7 @@ import { useCareerMapQuery } from "@/ui/hooks/careerMap"
 import { useCareerQuestionsQuery, useInitializeQuestionsMutation } from "@/ui/hooks/careerQuestion"
 
 import { closeDialog, openCareerGuideDetailDrawer, openConfirmDialog, openSearchDrawer, requestCreateCareerGuide } from "../actions/dialogActions"
+
 import CarrerMapToolBar from "../CarrerMapToolBar"
 import { useCarrerMapEditor } from "../hooks/useCarrerMapEditor"
 import CareerGuideCreatingDialog from "./CareerGuideCreatingDialog"
@@ -42,7 +43,7 @@ import {
   getCreatingCareerGuideOpen,
   getEventDialogOpen,
   getGenerateDialogOpen,
-  getJsonImportDialogOpen,
+
   getQuestionAnswerDialogKey,
   getQuestionAnswerDialogOpen,
   getQuestionAnswerDialogQuestion,
@@ -53,7 +54,6 @@ import {
   getViewerOpen,
   getViewerUserName,
 } from "./helpers"
-import ImportCareerMapDialog from "./ImportCareerMapDialog"
 
 type CareerMapEditorProps = {
   careerMapId: string
@@ -142,11 +142,6 @@ export default function CarrerMapEditor({ careerMapId }: CareerMapEditorProps) {
         open={getGenerateDialogOpen(mode)}
         onClose={() => editor.dispatch(closeDialog())}
       />
-      <ImportCareerMapDialog
-        open={getJsonImportDialogOpen(mode)}
-        onClose={() => editor.dispatch(closeDialog())}
-      />
-
       <ConfirmDialog
         open={getConfirmDialogOpen(mode)}
         message={getConfirmDialogMessage(mode)}

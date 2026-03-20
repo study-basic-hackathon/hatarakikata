@@ -21,11 +21,6 @@ export function getGenerateDialogOpen(mode: EditorMode) {
   return mode.type === 'generate-dialog'
 }
 
-// --- ImportCareerMapDialog ---
-export function getJsonImportDialogOpen(mode: EditorMode) {
-  return mode.type === 'json-import-dialog'
-}
-
 // --- ConfirmDialog ---
 export function getConfirmDialogOpen(mode: EditorMode) {
   return mode.type === 'confirm-dialog'

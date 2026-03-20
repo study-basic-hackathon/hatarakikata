@@ -102,9 +102,6 @@ export function editorReducer(state: EditorState, action: EditorAction): EditorS
     case 'OPEN_SEARCH_DRAWER':
       return { ...state, mode: { type: 'search-drawer' } }
 
-    case 'OPEN_JSON_IMPORT_DIALOG':
-      return { ...state, mode: { type: 'json-import-dialog' } }
-
     case 'OPEN_VIEWER':
       return { ...state, mode: { type: 'viewer', careerMapId: action.careerMapId, userName: action.userName } }
 
