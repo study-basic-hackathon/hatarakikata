@@ -10,12 +10,15 @@ import type {
   MatchCareerMapVectorsQuery,
   UpsertCareerMapVectorCommand,
 } from "@/core/application/port"
-import { buildCareerMapVectorData, type CareerMapVectorEncoding } from "@/core/domain/service/careerMap"
+import { buildCareerMapVectorData, STAGE_PRESETS, type CareerMapVectorEncoding, type CareerMapVectorFields } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util"
+
+const stageNames = Object.keys(STAGE_PRESETS)
 
 const CompareCareerMapEncodingsParametersSchema = z.object({
   userName: z.string().min(1),
   limit: z.number().int().min(1).max(50).default(5),
+  stages: z.array(z.string()).default(stageNames),
 })
 
 export type CompareCareerMapEncodingsParametersInput = z.input<typeof CompareCareerMapEncodingsParametersSchema>
@@ -27,6 +30,8 @@ type SearchResult = {
 }
 
 export type QuadrantResult = {
+  stage: string
+  fields: CareerMapVectorFields
   embedEncoding: CareerMapVectorEncoding
   searchEncoding: CareerMapVectorEncoding
   embedTokens: number
@@ -98,70 +103,83 @@ export function makeCompareCareerMapEncodings({
     const encodings: CareerMapVectorEncoding[] = ["toon", "natural"]
     const quadrants: QuadrantResult[] = []
 
-    for (const embedEncoding of encodings) {
-      // reindex all with this encoding
-      let embedTotalTokens = 0
-      let targetEmbedText = ""
-      const mapIds = mapIdsResult.data
-      const total = mapIds.length
+    const stages = parameters.stages
+      .filter((s) => s in STAGE_PRESETS)
+      .map((s) => ({ name: s, fields: STAGE_PRESETS[s] }))
 
-      for (let i = 0; i < mapIds.length; i++) {
-        const mapId = mapIds[i]
-        const eventsResult = await listCareerEventsForVectorQuery(mapId)
-        if (!eventsResult.success) continue
+    const totalCombinations = stages.length * encodings.length * encodings.length
+    let completedCombinations = 0
 
-        const { text, tagWeights } = buildCareerMapVectorData(eventsResult.data, embedEncoding)
-        const embResult = await createEmbeddingOperation({ text })
-        if (!embResult.success) continue
+    for (const stage of stages) {
+      for (const embedEncoding of encodings) {
+        // reindex all with this stage + encoding
+        let embedTotalTokens = 0
+        let targetEmbedText = ""
+        const mapIds = mapIdsResult.data
+        const total = mapIds.length
 
-        if (mapId === careerMapId) {
-          targetEmbedText = text
+        for (let i = 0; i < mapIds.length; i++) {
+          const mapId = mapIds[i]
+          const eventsResult = await listCareerEventsForVectorQuery(mapId)
+          if (!eventsResult.success) continue
+
+          const { text, tagWeights } = buildCareerMapVectorData(eventsResult.data, embedEncoding, stage.fields)
+          const embResult = await createEmbeddingOperation({ text })
+          if (!embResult.success) continue
+
+          if (mapId === careerMapId) {
+            targetEmbedText = text
+          }
+
+          embedTotalTokens += text.length
+          await upsertCareerMapVectorCommand({
+            careerMapId: mapId,
+            embedding: embResult.data,
+            tagWeights,
+          })
+
+          onProgress?.(`${stage.name}:index:${embedEncoding}`, i + 1, total)
         }
 
-        embedTotalTokens += text.length
-        await upsertCareerMapVectorCommand({
-          careerMapId: mapId,
-          embedding: embResult.data,
-          tagWeights,
-        })
+        for (const searchEncoding of encodings) {
+          // 検索対象のエンベディング生成
+          const eventsResult = await listCareerEventsForVectorQuery(careerMapId)
+          if (!eventsResult.success) continue
 
-        onProgress?.(`index:${embedEncoding}`, i + 1, total)
-      }
+          const { text } = buildCareerMapVectorData(eventsResult.data, searchEncoding, stage.fields)
+          const searchEmbResult = await createEmbeddingOperation({ text })
+          if (!searchEmbResult.success) continue
 
-      for (const searchEncoding of encodings) {
-        // 検索対象のエンベディング生成
-        const eventsResult = await listCareerEventsForVectorQuery(careerMapId)
-        if (!eventsResult.success) continue
+          const matchResult = await matchCareerMapVectorsQuery({
+            embedding: searchEmbResult.data,
+            matchCount: parameters.limit,
+            excludeCareerMapId: careerMapId,
+          })
+          if (!matchResult.success) continue
 
-        const { text } = buildCareerMapVectorData(eventsResult.data, searchEncoding)
-        const searchEmbResult = await createEmbeddingOperation({ text })
-        if (!searchEmbResult.success) continue
+          completedCombinations++
 
-        const matchResult = await matchCareerMapVectorsQuery({
-          embedding: searchEmbResult.data,
-          matchCount: parameters.limit,
-          excludeCareerMapId: careerMapId,
-        })
-        if (!matchResult.success) continue
+          quadrants.push({
+            stage: stage.name,
+            fields: stage.fields,
+            embedEncoding,
+            searchEncoding,
+            embedTokens: embedTotalTokens,
+            searchTokens: text.length,
+            totalTokens: embedTotalTokens + text.length,
+            embedTextLength: targetEmbedText.length,
+            searchTextLength: text.length,
+            embedText: targetEmbedText,
+            searchText: text,
+            results: matchResult.data.map((m) => ({
+              careerMapId: m.careerMapId,
+              userName: m.userName,
+              similarity: m.similarity,
+            })),
+          })
 
-        quadrants.push({
-          embedEncoding,
-          searchEncoding,
-          embedTokens: embedTotalTokens,
-          searchTokens: text.length,
-          totalTokens: embedTotalTokens + text.length,
-          embedTextLength: targetEmbedText.length,
-          searchTextLength: text.length,
-          embedText: targetEmbedText,
-          searchText: text,
-          results: matchResult.data.map((m) => ({
-            careerMapId: m.careerMapId,
-            userName: m.userName,
-            similarity: m.similarity,
-          })),
-        })
-
-        onProgress?.(`search:${embedEncoding}×${searchEncoding}`, quadrants.length, encodings.length * encodings.length)
+          onProgress?.(`${stage.name}:search:${embedEncoding}×${searchEncoding}`, completedCombinations, totalCombinations)
+        }
       }
     }
 
