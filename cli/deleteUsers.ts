@@ -1,45 +1,39 @@
 import 'dotenv/config'
 
+import { eq } from 'drizzle-orm'
 import * as fs from 'fs'
 import inquirer from 'inquirer'
 import * as path from 'path'
 
+import { db } from '../infrastructure/server/drizzle/client'
+import { users } from '../infrastructure/server/drizzle/schema'
 import { createSupabaseAdmin } from '../infrastructure/server/supabase/client'
 
 const isAll = process.argv.includes('--all')
 
 async function main() {
-  const supabase = createSupabaseAdmin()
+  const userRows = await db.select({ id: users.id, name: users.name }).from(users)
 
-  const { data: users, error } = await supabase
-    .from('users')
-    .select('id, name')
-
-  if (error) {
-    console.error('ユーザー一覧の取得に失敗しました:', error.message)
-    process.exit(1)
-  }
-
-  if (!users || users.length === 0) {
+  if (userRows.length === 0) {
     console.log('削除対象のユーザーがいません。')
     return
   }
 
-  let targetUsers: typeof users
+  let targetUsers: typeof userRows
 
   if (isAll) {
-    targetUsers = users
+    targetUsers = userRows
   } else {
     const answer = await inquirer.prompt([
       {
         type: 'checkbox',
         name: 'userIds',
         message: '削除するユーザーを選択してください:',
-        choices: users.map((u) => ({ name: u.name ?? u.id, value: u.id })),
+        choices: userRows.map((u) => ({ name: u.name ?? u.id, value: u.id })),
         validate: (input: string[]) => input.length > 0 ? true : '1つ以上選択してください',
       },
     ])
-    targetUsers = users.filter((u) => answer.userIds.includes(u.id))
+    targetUsers = userRows.filter((u) => answer.userIds.includes(u.id))
   }
 
   const { confirm } = await inquirer.prompt([
@@ -56,22 +50,14 @@ async function main() {
     return
   }
 
+  const supabase = createSupabaseAdmin()
   let successCount = 0
   let failCount = 0
 
   for (const user of targetUsers) {
     try {
       // Delete from users table (cascades to career_maps, career_events, etc.)
-      const { error: dbError } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', user.id)
-
-      if (dbError) {
-        console.error(`  [失敗] ${user.name}: DB削除エラー - ${dbError.message}`)
-        failCount++
-        continue
-      }
+      await db.delete(users).where(eq(users.id, user.id))
 
       // Delete auth user
       const { error: authError } = await supabase.auth.admin.deleteUser(user.id)

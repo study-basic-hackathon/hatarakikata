@@ -4,7 +4,7 @@ import type { CreateCareerMapVectorCommand } from "@/core/application/port/comma
 import type { CreateEmbeddingOperation } from "@/core/application/port/operation"
 import type { ListCareerEventsForVectorQuery } from "@/core/application/port/query"
 import type { CareerMapVector } from "@/core/application/port/query/careerMapVector/findCareerMapVectorQuery"
-import { buildCareerMapVectorData } from "@/core/domain/service/careerMap"
+import { type CareerMapVectorEncoding, buildCareerMapVectorData } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsInvalidParametersError, succeed } from "@/core/util/appResult"
 
 const CreateCareerMapVectorParametersSchema = z.object({
@@ -19,12 +19,14 @@ export type MakeCreateCareerMapVectorOperationDependencies = {
   listCareerEventsForVectorQuery: ListCareerEventsForVectorQuery
   createEmbeddingOperation: CreateEmbeddingOperation
   createCareerMapVectorCommand: CreateCareerMapVectorCommand
+  encoding?: CareerMapVectorEncoding
 }
 
 export function makeCreateCareerMapVectorOperation({
   listCareerEventsForVectorQuery,
   createEmbeddingOperation,
   createCareerMapVectorCommand,
+  encoding = "toon",
 }: MakeCreateCareerMapVectorOperationDependencies): CreateCareerMapVectorOperation {
   return async (input) => {
     const validation = CreateCareerMapVectorParametersSchema.safeParse(input)
@@ -35,7 +37,7 @@ export function makeCreateCareerMapVectorOperation({
     const eventsResult = await listCareerEventsForVectorQuery(careerMapId)
     if (!eventsResult.success) return eventsResult
 
-    const vectorData = buildCareerMapVectorData(eventsResult.data)
+    const vectorData = buildCareerMapVectorData(eventsResult.data, encoding)
 
     const embeddingResult = await createEmbeddingOperation({ text: vectorData.text })
     if (!embeddingResult.success) return embeddingResult

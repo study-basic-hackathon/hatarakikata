@@ -2,8 +2,8 @@ import { makeGetCareerMap } from '@/core/application/usecase/careerMap/getCareer
 import { makeReindexAllCareerMapVectors } from '@/core/application/usecase/careerMap/reindexAllCareerMapVectors'
 import { makeUpdateCareerMap } from '@/core/application/usecase/careerMap/updateCareerMap'
 import { createEmbeddingOperation } from '@/infrastructure/server/ai/operation'
-import { updateCareerMapCommand, upsertCareerMapVectorCommand } from '@/infrastructure/server/supabase/command'
-import { findCareerMapQuery, listAllCareerMapIdsQuery, listCareerEventsForVectorQuery } from '@/infrastructure/server/supabase/query'
+import { updateCareerMapCommand, upsertCareerMapVectorCommand } from '@/infrastructure/server/drizzle/command'
+import { findCareerMapQuery, listAllCareerMapIdsQuery, listCareerEventsForVectorQuery } from '@/infrastructure/server/drizzle/query'
 
 export const getCareerMap = makeGetCareerMap({
   findCareerMapQuery,

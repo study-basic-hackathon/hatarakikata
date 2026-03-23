@@ -3,9 +3,9 @@ import { makeCloseQuestion } from '@/core/application/usecase/careerQuestion/clo
 import { makeGetQuestionsByCareerMapId } from '@/core/application/usecase/careerQuestion/getQuestionsByCareerMapId'
 import { makeInitializeQuestionsForUser } from '@/core/application/usecase/careerQuestion/initializeQuestionsForUser'
 import { makeUpdateCareerQuestion } from '@/core/application/usecase/careerQuestion/updateCareerQuestion'
-import { createCareerEventCommand } from '@/infrastructure/server/supabase/command'
-import { createCareerQuestionCommand, updateCareerQuestionCommand } from '@/infrastructure/server/supabase/command'
-import { findCareerMapQuery, findCareerQuestionQuery, listCareerQuestionsByCareerMapIdQuery } from '@/infrastructure/server/supabase/query'
+import { createCareerEventCommand } from '@/infrastructure/server/drizzle/command'
+import { createCareerQuestionCommand, updateCareerQuestionCommand } from '@/infrastructure/server/drizzle/command'
+import { findCareerMapQuery, findCareerQuestionQuery, listCareerQuestionsByCareerMapIdQuery } from '@/infrastructure/server/drizzle/query'
 
 export const getQuestionsByCareerMapId = makeGetQuestionsByCareerMapId({
   listCareerQuestionsByCareerMapIdQuery,

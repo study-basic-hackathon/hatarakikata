@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 
 import { failAsForbiddenError } from '@/core/util/appResult'
-import { listCareerMapsExcludingUserQuery } from '@/infrastructure/server/supabase/query'
+import { listCareerMapsExcludingUserQuery } from '@/infrastructure/server/drizzle/query'
 import { toResponse } from '@/server/lib/response'
 import { getIntParam } from '@/server/lib/searchParams'
 import { getExecutor } from '@/server/service/auth'

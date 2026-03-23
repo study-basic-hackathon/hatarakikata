@@ -2,8 +2,8 @@ import { makeCreateCareerGuide } from '@/core/application/usecase/careerGuide/cr
 import { makeGetCareerGuide } from '@/core/application/usecase/careerGuide/getCareerGuide'
 import { makeListMyCareerGuides } from '@/core/application/usecase/careerGuide/listMyCareerGuides'
 import { generateCareerGuideOperation } from '@/infrastructure/server/ai/operation'
-import { createCareerGuideCommand, createCreditTransactionCommand } from '@/infrastructure/server/supabase/command'
-import { findCareerGuideQuery, findCareerMapQuery, findUserQuery, getCreditBalanceQuery, getMembershipQuery, listCareerEventsByCareerMapIdQuery, listCareerGuidesByUserIdQuery } from '@/infrastructure/server/supabase/query'
+import { createCareerGuideCommand, createCreditTransactionCommand } from '@/infrastructure/server/drizzle/command'
+import { findCareerGuideQuery, findCareerMapQuery, findUserQuery, getCreditBalanceQuery, getMembershipQuery, listCareerEventsByCareerMapIdQuery, listCareerGuidesByUserIdQuery } from '@/infrastructure/server/drizzle/query'
 
 export const createCareerGuide = makeCreateCareerGuide({
   findCareerMapQuery,

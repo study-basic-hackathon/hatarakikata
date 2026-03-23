@@ -1,5 +1,5 @@
 import { failAsForbiddenError } from '@/core/util/appResult'
-import { listCreditTransactionsQuery } from '@/infrastructure/server/supabase/query'
+import { listCreditTransactionsQuery } from '@/infrastructure/server/drizzle/query'
 import { toResponse } from '@/server/lib/response'
 import { getExecutor } from '@/server/service/auth'
 

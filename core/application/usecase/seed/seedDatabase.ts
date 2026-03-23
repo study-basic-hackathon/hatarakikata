@@ -1,0 +1,72 @@
+import type { Executor } from '@/core/application/executor'
+import type { SeedDatabaseCommand } from '@/core/application/port'
+import { type AppResult, failAsForbiddenError, succeed } from '@/core/util'
+
+export const EVENT_TAG_NAMES = [
+  // 学業
+  '在学', '受験', '留学', '専攻変更',
+  // 仕事
+  '在職', '転職活動', '昇進', '管理職', '起業', 'フリーランス', '副業', '休職',
+  // 生活
+  '居住', '引越し', '結婚', '出産', '子育て', '介護',
+  // 内面・感情
+  '挑戦', '成長', '停滞', '不安', '達成感', '燃え尽き',
+]
+
+export const INVITATION_CODES = [
+  '0DUTQDHB', 'LPSQLF37', 'YFQO0BR3', 'NPJ3QAX2', 'CFMIQ2ZO',
+  'YSY3IWJN', 'GI34PNSC', 'F58PQLEB', 'Z19BCYA4', 'OETC7N23',
+  'RTH8O71J', 'AC05WG24', 'FT8ZVCNB', 'F5BJDDWQ', 'VQ0KWNGQ',
+  'ZOAVJFSN', '9BT6DRD2', '42I8U9TH', 'EQC0FTQJ', 'D14I8S9W',
+  'BWCEVIRJ', 'YLZA4ANE', 'WHNYV6PH', 'YV02TT67', 'OZUGM35N',
+  'SFILPMG9', 'P7CKIRNM', '68I78V4F', 'IJASHGD3', 'B7KLJ6CE',
+  'RNU1NYM6', 'PJORZ3CC', 'UR4LKBXI', 'NIVAXBWA', '5C03LNGR',
+  'S6YBE98V', 'EXM05NYH', 'S2I0NA1P', 'WYBY0UHF', '0CAYT7XI',
+  'I44KIUMN', 'GQE26CPH', 'EIORGYPG', 'FAS1L6E1', 'A05B61L0',
+  '9DAX351P', 'L3346ES4', 'LQ4ERLSQ', 'KV1DFYV3', 'WGZKSTXU',
+  'JJSGOS28', 'QC6758SO', 'JST606XW', '75EHS8Q9', 'STH4J088',
+  '680GKRUB', 'USPBVKB5', '99FV9JEA', '9ZMGSE68', '7C0VKOAC',
+  '7J11WYXJ', 'WYYOOSQQ', 'I5F4FAQE', 'L451HJV7', 'BHQKMLGC',
+  '6DYZ70B3', 'XMKHEZP2', '1M1TF9U5', 'DZGHNRXE', '0C94WPAQ',
+  'WFYRY1TN', '3KAEHSE0', 'QPFW1626', 'Y64T66EC', 'GIFH6WP7',
+  'T49836RZ', 'CSEHZY7E', '69I0FGFI', '5IM0TI4D', '5IBFVU4G',
+  '0WM05UV8', '33AZTSU3', 'SM52RS33', 'X0WG0QA6', 'W9WR5Z43',
+  'CE3BXZT6', 'MD6IVYTE', 'SE8ZJR5R', 'MVNKBBBD', '923BX6RA',
+  'HOURZNWR', 'NUFS5VT2', '7GHA18T7', 'T05PAO0P', 'VN47CE9N',
+  'F1V5EZTZ', '0JTKKDKS', '3572BUIT', '7K04TOX3', 'XRRR27R4',
+]
+
+type SeedDatabaseResult = {
+  eventTagCount: number
+  invitationCodeCount: number
+}
+
+export type SeedDatabaseUsecase = (
+  executor: Executor,
+) => Promise<AppResult<SeedDatabaseResult>>
+
+export type MakeSeedDatabaseDependencies = {
+  seedDatabaseCommand: SeedDatabaseCommand
+}
+
+export function makeSeedDatabase({
+  seedDatabaseCommand,
+}: MakeSeedDatabaseDependencies): SeedDatabaseUsecase {
+  return async (executor) => {
+    if (executor.type !== 'system') {
+      return failAsForbiddenError('Forbidden')
+    }
+
+    const result = await seedDatabaseCommand({
+      eventTagNames: EVENT_TAG_NAMES,
+      invitationCodes: INVITATION_CODES,
+    })
+
+    if (!result.success) return result
+
+    return succeed({
+      eventTagCount: EVENT_TAG_NAMES.length,
+      invitationCodeCount: INVITATION_CODES.length,
+    })
+  }
+}

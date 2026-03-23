@@ -2,7 +2,7 @@ import type { Executor } from "@/core/application/executor"
 import type { UpsertCareerMapVectorCommand } from "@/core/application/port"
 import type { CreateEmbeddingOperation } from "@/core/application/port"
 import type { ListAllCareerMapIdsQuery, ListCareerEventsForVectorQuery } from "@/core/application/port"
-import { buildCareerMapVectorData } from "@/core/domain/service/careerMap"
+import { type CareerMapVectorEncoding, buildCareerMapVectorData } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsForbiddenError, succeed } from "@/core/util"
 
 type ReindexAllCareerMapVectorsResult = {
@@ -19,6 +19,7 @@ export type MakeReindexAllCareerMapVectorsDependencies = {
   listCareerEventsForVectorQuery: ListCareerEventsForVectorQuery
   createEmbeddingOperation: CreateEmbeddingOperation
   upsertCareerMapVectorCommand: UpsertCareerMapVectorCommand
+  encoding?: CareerMapVectorEncoding
   onProgress?: (current: number, total: number, failed: number) => void
 }
 
@@ -27,6 +28,7 @@ export function makeReindexAllCareerMapVectors({
   listCareerEventsForVectorQuery,
   createEmbeddingOperation,
   upsertCareerMapVectorCommand,
+  encoding = "toon",
   onProgress,
 }: MakeReindexAllCareerMapVectorsDependencies): ReindexAllCareerMapVectorsUsecase {
   return async (executor) => {
@@ -47,7 +49,7 @@ export function makeReindexAllCareerMapVectors({
         const eventsResult = await listCareerEventsForVectorQuery(mapId)
         if (!eventsResult.success) throw new Error(eventsResult.error.message)
 
-        const { text, tagWeights } = buildCareerMapVectorData(eventsResult.data)
+        const { text, tagWeights } = buildCareerMapVectorData(eventsResult.data, encoding)
 
         const embeddingResult = await createEmbeddingOperation({ text })
         if (!embeddingResult.success) throw new Error(embeddingResult.error.message)

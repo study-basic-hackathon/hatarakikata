@@ -2,10 +2,22 @@ import 'dotenv/config'
 
 import cliProgress from 'cli-progress'
 
+import type { CareerMapVectorEncoding } from '../core/domain/service/careerMap'
 import type { SystemExecutor } from '../core/application/executor'
 import { createReindexAllCareerMapVectors } from './usecase/careerMap'
 
+function parseEncoding(): CareerMapVectorEncoding {
+  const arg = process.argv.find((a) => a.startsWith('--encoding='))
+  if (!arg) return 'toon'
+  const value = arg.split('=')[1]
+  if (value === 'toon' || value === 'natural') return value
+  console.error(`Unknown encoding: ${value}. Use "toon" or "natural".`)
+  process.exit(1)
+}
+
 async function main() {
+  const encoding = parseEncoding()
+
   const executor: SystemExecutor = {
     type: 'system',
     operation: { name: 'reindex-vectors' },
@@ -13,7 +25,7 @@ async function main() {
 
   const bar = new cliProgress.SingleBar(
     {
-      format: ' {bar} {percentage}% | {value}/{total} | failed: {failed}',
+      format: ` {bar} {percentage}% | {value}/{total} | failed: {failed} | encoding: ${encoding}`,
       clearOnComplete: false,
       hideCursor: true,
     },
@@ -27,6 +39,7 @@ async function main() {
       bar.setTotal(total)
       bar.update(current, { failed })
     },
+    encoding,
   )
 
   const result = await reindexAllCareerMapVectors(executor)
@@ -38,7 +51,7 @@ async function main() {
     process.exit(1)
   }
 
-  console.log(`Done: ${result.data.processed} processed, ${result.data.failed} failed`)
+  console.log(`Done: ${result.data.processed} processed, ${result.data.failed} failed (encoding: ${encoding})`)
 }
 
 main()

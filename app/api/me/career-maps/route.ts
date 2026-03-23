@@ -1,6 +1,6 @@
 import { failAsForbiddenError } from '@/core/util/appResult'
-import { createCareerMapCommand } from '@/infrastructure/server/supabase/command'
-import { listCareerMapByUserIdQuery } from '@/infrastructure/server/supabase/query'
+import { createCareerMapCommand } from '@/infrastructure/server/drizzle/command'
+import { listCareerMapByUserIdQuery } from '@/infrastructure/server/drizzle/query'
 import { toResponse } from '@/server/lib/response'
 import { getExecutor } from '@/server/service/auth'
 

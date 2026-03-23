@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-
     "delete-users": "tsx cli/deleteUsers.ts",
     "delete-users:all": "tsx cli/deleteUsers.ts --all",
     "readjust-rows": "tsx cli/readjustRows.ts",
-    "reindex-vectors": "tsx cli/reindexVectors.ts"
+    "reindex-vectors": "tsx cli/reindexVectors.ts",
+    "seed": "tsx cli/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -21,10 +21,13 @@
     "@toon-format/toon": "^2.1.0",
     "cli-progress": "^3.12.0",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.1",
+    "drizzle-seed": "^0.3.1",
     "inquirer": "^13.2.5",
     "next": "16.1.6",
     "openai": "^6.22.0",
     "p-limit": "^7.3.0",
+    "postgres": "^3.4.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
@@ -44,6 +47,7 @@
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
     "dotenv": "^17.3.1",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "eslint-plugin-simple-import-sort": "^12.1.1",
