@@ -4,7 +4,7 @@ import type { CreateCareerMapVectorCommand } from "@/core/application/port/comma
 import type { CreateEmbeddingOperation } from "@/core/application/port/operation"
 import type { ListCareerEventsForVectorQuery } from "@/core/application/port/query"
 import type { CareerMapVector } from "@/core/application/port/query/careerMapVector/findCareerMapVectorQuery"
-import { type CareerMapVectorEncoding, buildCareerMapVectorData } from "@/core/domain/service/careerMap"
+import { buildCareerMapVectorData,type CareerMapVectorEncoding } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsInvalidParametersError, succeed } from "@/core/util/appResult"
 
 const CreateCareerMapVectorParametersSchema = z.object({

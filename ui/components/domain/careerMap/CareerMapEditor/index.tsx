@@ -11,7 +11,6 @@ import { useCareerMapQuery } from "@/ui/hooks/careerMap"
 import { useCareerQuestionsQuery, useInitializeQuestionsMutation } from "@/ui/hooks/careerQuestion"
 
 import { closeDialog, openCareerGuideDetailDrawer, openConfirmDialog, openSearchDrawer, requestCreateCareerGuide } from "../actions/dialogActions"
-
 import CarrerMapToolBar from "../CarrerMapToolBar"
 import { useCarrerMapEditor } from "../hooks/useCarrerMapEditor"
 import CareerGuideCreatingDialog from "./CareerGuideCreatingDialog"
@@ -43,7 +42,6 @@ import {
   getCreatingCareerGuideOpen,
   getEventDialogOpen,
   getGenerateDialogOpen,
-
   getQuestionAnswerDialogKey,
   getQuestionAnswerDialogOpen,
   getQuestionAnswerDialogQuestion,

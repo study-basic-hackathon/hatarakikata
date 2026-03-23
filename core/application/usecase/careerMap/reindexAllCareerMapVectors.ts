@@ -2,7 +2,7 @@ import type { Executor } from "@/core/application/executor"
 import type { UpsertCareerMapVectorCommand } from "@/core/application/port"
 import type { CreateEmbeddingOperation } from "@/core/application/port"
 import type { ListAllCareerMapIdsQuery, ListCareerEventsForVectorQuery } from "@/core/application/port"
-import { type CareerMapVectorEncoding, buildCareerMapVectorData } from "@/core/domain/service/careerMap"
+import { buildCareerMapVectorData,type CareerMapVectorEncoding } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsForbiddenError, succeed } from "@/core/util"
 
 type ReindexAllCareerMapVectorsResult = {

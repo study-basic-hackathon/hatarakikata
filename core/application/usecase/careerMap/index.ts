@@ -1,3 +1,4 @@
+export * from './compareCareerMapEncodings'
 export * from './getCareerMap'
 export * from './getSimilarCareerMaps'
 export * from './readjustAllCareerMapRows'

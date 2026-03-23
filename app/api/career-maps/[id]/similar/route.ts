@@ -15,6 +15,6 @@ export async function GET(
   const limit = getIntParam(searchParams, 'limit', { default: 10, min: 1, max: 50 })
   const offset = getIntParam(searchParams, 'offset', { default: 0, min: 0 })
 
-  const result = await getSimilarCareerMaps({ id, limit, offset }, executor)
+  const result = await getSimilarCareerMaps({ mode: 'map', id, limit, offset }, executor)
   return toResponse(result)
 }

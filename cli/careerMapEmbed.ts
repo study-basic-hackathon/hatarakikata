@@ -1,26 +1,43 @@
 import 'dotenv/config'
 
 import cliProgress from 'cli-progress'
+import { program } from 'commander'
+import inquirer from 'inquirer'
 
 import type { SystemExecutor } from '../core/application/executor'
 import type { CareerMapVectorEncoding } from '../core/domain/service/careerMap'
 import { createReindexAllCareerMapVectors } from './usecase/careerMap'
 
-function parseEncoding(): CareerMapVectorEncoding {
-  const arg = process.argv.find((a) => a.startsWith('--encoding='))
-  if (!arg) return 'toon'
-  const value = arg.split('=')[1]
-  if (value === 'toon' || value === 'natural') return value
-  console.error(`Unknown encoding: ${value}. Use "toon" or "natural".`)
-  process.exit(1)
-}
+program
+  .name('career-map:embed')
+  .description('キャリアマップのベクトルを再インデックスする')
+  .option('-e, --encoding <encoding>', 'エンコーディング形式 (natural | toon)')
+  .parse()
 
 async function main() {
-  const encoding = parseEncoding()
+  const opts = program.opts<{ encoding?: string }>()
+
+  let encoding: CareerMapVectorEncoding
+  if (opts.encoding === 'natural' || opts.encoding === 'toon') {
+    encoding = opts.encoding
+  } else {
+    const answer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'encoding',
+        message: 'エンコーディング形式を選択してください',
+        choices: [
+          { name: 'TOON形式', value: 'toon' },
+          { name: '自然言語', value: 'natural' },
+        ],
+      },
+    ])
+    encoding = answer.encoding
+  }
 
   const executor: SystemExecutor = {
     type: 'system',
-    operation: { name: 'reindex-vectors' },
+    operation: { name: 'career-map:embed' },
   }
 
   const bar = new cliProgress.SingleBar(

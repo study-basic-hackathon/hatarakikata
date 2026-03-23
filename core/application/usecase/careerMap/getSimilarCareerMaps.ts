@@ -1,16 +1,25 @@
 import { z } from "zod"
 
 import type { Executor } from "@/core/application/executor"
-import type { FindCareerMapEventTagsByIdsQuery, FindCareerMapQuery, FindCareerMapVectorQuery, MatchCareerMapVectorsQuery } from "@/core/application/port"
+import type { CreateEmbeddingOperation, FindCareerMapEventTagsByIdsQuery, FindCareerMapQuery, FindCareerMapVectorQuery, MatchCareerMapVectorsQuery } from "@/core/application/port"
 import { createPagedItemsSchema } from "@/core/domain/schema"
 import { type SimilarCareerMap, SimilarCareerMapSchema } from "@/core/domain/value/similarCareerMap"
 import { type AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util"
 
-const GetSimilarCareerMapsParametersSchema = z.object({
-  id: z.string(),
-  limit: z.number().int().min(1).max(50).default(10),
-  offset: z.number().int().min(0).default(0),
-})
+const GetSimilarCareerMapsParametersSchema = z.discriminatedUnion("mode", [
+  z.object({
+    mode: z.literal("map"),
+    id: z.string(),
+    limit: z.number().int().min(1).max(50).default(10),
+    offset: z.number().int().min(0).default(0),
+  }),
+  z.object({
+    mode: z.literal("text"),
+    text: z.string().min(1),
+    limit: z.number().int().min(1).max(50).default(10),
+    offset: z.number().int().min(0).default(0),
+  }),
+])
 
 export type GetSimilarCareerMapsParametersInput = z.input<typeof GetSimilarCareerMapsParametersSchema>
 
@@ -27,6 +36,7 @@ export type MakeGetSimilarCareerMapsDependencies = {
   findCareerMapVectorQuery: FindCareerMapVectorQuery
   matchCareerMapVectorsQuery: MatchCareerMapVectorsQuery
   findCareerMapEventTagsByIdsQuery: FindCareerMapEventTagsByIdsQuery
+  createEmbeddingOperation?: CreateEmbeddingOperation
 }
 
 export function makeGetSimilarCareerMaps({
@@ -34,39 +44,57 @@ export function makeGetSimilarCareerMaps({
   findCareerMapVectorQuery,
   matchCareerMapVectorsQuery,
   findCareerMapEventTagsByIdsQuery,
+  createEmbeddingOperation,
 }: MakeGetSimilarCareerMapsDependencies): GetSimilarCareerMapsUsecase {
   return async (input, executor) => {
     const validation = GetSimilarCareerMapsParametersSchema.safeParse(input)
     if (!validation.success) return failAsInvalidParametersError(validation.error.message, validation.error)
 
-    if (executor.type !== "user" || executor.userType !== "general") {
+    if (executor.type === "user" && executor.userType !== "general") {
       return failAsForbiddenError("Forbidden")
     }
 
     const parameters = validation.data
 
-    // マップ存在確認
-    const mapResult = await findCareerMapQuery({ id: parameters.id })
-    if (!mapResult.success) return mapResult
-    if (!mapResult.data) return failAsNotFoundError("Career map is not found")
+    let embedding: number[]
+    let tagWeights: Record<string, number> = {}
+    let excludeCareerMapId = ""
 
-    // ベクトル取得
-    const findResult = await findCareerMapVectorQuery(parameters.id)
-    if (!findResult.success) return findResult
+    if (parameters.mode === "map") {
+      // マップ存在確認
+      const mapResult = await findCareerMapQuery({ id: parameters.id })
+      if (!mapResult.success) return mapResult
+      if (!mapResult.data) return failAsNotFoundError("Career map is not found")
 
-    // ベクトルがなければ空の結果を返す
-    const vector = findResult.data
-    if (!vector) {
-      return succeed({ items: [], count: 0, offset: parameters.offset, limit: parameters.limit })
+      // ベクトル取得
+      const findResult = await findCareerMapVectorQuery(parameters.id)
+      if (!findResult.success) return findResult
+
+      // ベクトルがなければ空の結果を返す
+      const vector = findResult.data
+      if (!vector) {
+        return succeed({ items: [], count: 0, offset: parameters.offset, limit: parameters.limit })
+      }
+
+      embedding = vector.embedding
+      tagWeights = vector.tagWeights
+      excludeCareerMapId = parameters.id
+    } else {
+      if (!createEmbeddingOperation) {
+        return failAsForbiddenError("Text search is not supported without createEmbeddingOperation")
+      }
+
+      const embeddingResult = await createEmbeddingOperation({ text: parameters.text })
+      if (!embeddingResult.success) return embeddingResult
+
+      embedding = embeddingResult.data
     }
-
-    const { embedding, tagWeights } = vector
 
     // 類似マップ検索
     const matchResult = await matchCareerMapVectorsQuery({
       embedding,
       matchCount: parameters.limit,
-      excludeCareerMapId: parameters.id,
+      excludeCareerMapId,
     })
     if (!matchResult.success) return matchResult
 

@@ -1,4 +1,5 @@
 export * from './careerMapAction'
+export * from './careerMapSnapshot'
 export * from './careerMapVector'
 export * from './carrerMapSummary'
 export * from './eventPlacement'
