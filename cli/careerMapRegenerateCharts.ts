@@ -142,7 +142,6 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
 
   const chartCanvas = new ChartJSNodeCanvas({ width: 1000, height: 500, backgroundColour: 'white' })
 
-  const labels = stages.map((s) => s.stage)
   const statsArr = stages.map((s) => descriptiveStats(s.similarities))
 
   const allMin = Math.min(...statsArr.map((s) => s.min))
@@ -150,47 +149,105 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
   const yMin = Math.floor(allMin / 5) * 5
   const yMax = Math.ceil(allMax / 5) * 5
 
+  // 箱ひげ図をカスタムプラグインで描画
+  // ダミーの scatter で x 軸のラベルだけ確保し、afterDatasetsDraw で箱ひげを描く
+  const boxplotPlugin = {
+    id: 'boxplotDrawer',
+    afterDatasetsDraw(chart: { ctx: CanvasRenderingContext2D; chartArea: { left: number; right: number; top: number; bottom: number }; scales: Record<string, { getPixelForValue: (v: number) => number }> }) {
+      const { ctx, chartArea, scales } = chart
+      const yScale = scales['y']
+      const count = stages.length
+      const totalWidth = chartArea.right - chartArea.left
+      const groupWidth = totalWidth / count
+      const boxWidth = groupWidth * 0.5
+
+      for (let i = 0; i < count; i++) {
+        const s = statsArr[i]
+        const centerX = chartArea.left + groupWidth * (i + 0.5)
+        const halfBox = boxWidth / 2
+
+        const yQ1 = yScale.getPixelForValue(s.q1)
+        const yQ3 = yScale.getPixelForValue(s.q3)
+        const yMedian = yScale.getPixelForValue(s.q2)
+        const yMinVal = yScale.getPixelForValue(s.min)
+        const yMaxVal = yScale.getPixelForValue(s.max)
+
+        const color = COLORS[i % COLORS.length]
+
+        // ひげ（min–Q1）
+        ctx.beginPath()
+        ctx.strokeStyle = color
+        ctx.lineWidth = 2
+        ctx.moveTo(centerX, yQ1)
+        ctx.lineTo(centerX, yMinVal)
+        ctx.stroke()
+        // min のキャップ
+        ctx.beginPath()
+        ctx.moveTo(centerX - halfBox * 0.4, yMinVal)
+        ctx.lineTo(centerX + halfBox * 0.4, yMinVal)
+        ctx.stroke()
+
+        // ひげ（Q3–max）
+        ctx.beginPath()
+        ctx.moveTo(centerX, yQ3)
+        ctx.lineTo(centerX, yMaxVal)
+        ctx.stroke()
+        // max のキャップ
+        ctx.beginPath()
+        ctx.moveTo(centerX - halfBox * 0.4, yMaxVal)
+        ctx.lineTo(centerX + halfBox * 0.4, yMaxVal)
+        ctx.stroke()
+
+        // 箱（IQR: Q1–Q3）
+        ctx.beginPath()
+        ctx.fillStyle = color + '40'
+        ctx.strokeStyle = color
+        ctx.lineWidth = 2
+        ctx.rect(centerX - halfBox, yQ3, boxWidth, yQ1 - yQ3)
+        ctx.fill()
+        ctx.stroke()
+
+        // 中央値線
+        ctx.beginPath()
+        ctx.strokeStyle = color
+        ctx.lineWidth = 3
+        ctx.moveTo(centerX - halfBox, yMedian)
+        ctx.lineTo(centerX + halfBox, yMedian)
+        ctx.stroke()
+
+        // 外れ値を点で描画
+        for (const o of s.outliers) {
+          const yO = yScale.getPixelForValue(o)
+          ctx.beginPath()
+          ctx.fillStyle = color
+          ctx.arc(centerX, yO, 4, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+    },
+  }
+
   const buf = await chartCanvas.renderToBuffer({
-    type: 'bar',
+    type: 'scatter',
     data: {
-      labels,
-      datasets: [
-        {
-          label: 'ひげ (min–max)',
-          data: statsArr.map((s) => [s.min, s.max] as [number, number]),
-          backgroundColor: 'rgba(0, 0, 0, 0)',
-          borderColor: 'rgba(100, 100, 100, 1)',
-          borderWidth: 1,
-          barPercentage: 0.08,
-          order: 3,
-        },
-        {
-          label: 'IQR (Q1–Q3)',
-          data: statsArr.map((s) => [s.q1, s.q3] as [number, number]),
-          backgroundColor: COLORS.map((c) => c + '80'),
-          borderColor: COLORS,
-          borderWidth: 2,
-          barPercentage: 0.5,
-          order: 2,
-        },
-        {
-          label: '中央値',
-          data: statsArr.map((s) => [s.q2 - 0.15, s.q2 + 0.15] as [number, number]),
-          backgroundColor: 'rgba(255, 99, 132, 1)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 0,
-          barPercentage: 0.5,
-          order: 1,
-        },
-      ],
+      labels: stages.map((s) => s.stage),
+      datasets: [{
+        // ダミーデータ（プラグインが描画するので非表示）
+        data: stages.map((_, i) => ({ x: i, y: 0 })),
+        pointRadius: 0,
+      }],
     },
     options: {
-      indexAxis: 'x',
       plugins: {
         title: { display: true, text: 'Stage 別 類似度分布（箱ひげ図）', font: { size: 18 } },
-        legend: { display: true, position: 'top' },
+        legend: { display: false },
       },
       scales: {
+        x: {
+          type: 'category',
+          labels: stages.map((s) => s.stage),
+          grid: { display: false },
+        },
         y: {
           min: yMin,
           max: yMax,
@@ -198,7 +255,8 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
         },
       },
     },
-  })
+    plugins: [boxplotPlugin],
+  } as never)
 
   const file = 'images/boxplot.png'
   fs.writeFileSync(path.join(outDir, file), buf)
