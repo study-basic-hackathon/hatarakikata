@@ -262,6 +262,17 @@ function formatReport(
   lines.push(`生成日: ${new Date().toISOString().slice(0, 10)}`)
   lines.push('')
 
+  // ステージ一覧テーブル
+  lines.push('## ステージ一覧')
+  lines.push('')
+  lines.push('| ステージ | 含める属性 |')
+  lines.push('|----------|-----------|')
+  for (const stage of stagesData) {
+    const preset = STAGE_PRESETS[stage.stage]
+    lines.push(`| ${stage.stage} | ${fieldsLabel(preset)} |`)
+  }
+  lines.push('')
+
   // 箱ひげ図
   lines.push('## 全体比較（箱ひげ図）')
   lines.push('')
@@ -289,10 +300,12 @@ function formatReport(
     lines.push('')
 
     // テキストデータへのリンク
-    lines.push('### テキストデータ')
+    lines.push('### データ')
     lines.push('')
-    lines.push(`- インデックス用: [embed_${stage.stage}.txt](./data/embed_${stage.stage}.txt)`)
-    lines.push(`- 検索クエリ用: [search_${stage.stage}.txt](./data/search_${stage.stage}.txt)`)
+    lines.push(`- イベントデータ: [events.json](./data/${stage.stage}/events.json)`)
+    lines.push(`- インデックス用テキスト: [embed.txt](./data/${stage.stage}/embed.txt)`)
+    lines.push(`- 検索クエリ用テキスト: [search.txt](./data/${stage.stage}/search.txt)`)
+    lines.push(`- 検索結果: [results.json](./data/${stage.stage}/results.json)`)
     lines.push('')
 
     // トークンコスト

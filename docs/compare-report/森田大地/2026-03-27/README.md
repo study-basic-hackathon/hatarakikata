@@ -6,6 +6,16 @@
 検索件数: 23
 生成日: 2026-03-27
 
+## ステージ一覧
+
+| ステージ | 含める属性 |
+|----------|-----------|
+| stage1 | name, type |
+| stage2 | name, type, tags |
+| stage3 | name, type, tags, strength |
+| stage4 | name, type, tags, strength, dates |
+| stage5 | name, type, tags, strength, dates, description |
+
 ## 全体比較（箱ひげ図）
 
 ![箱ひげ図](./images/boxplot.png)
@@ -20,10 +30,12 @@
 
 含める属性: **name, type**
 
-### テキストデータ
+### データ
 
-- インデックス用: [embed_stage1.txt](./data/embed_stage1.txt)
-- 検索クエリ用: [search_stage1.txt](./data/search_stage1.txt)
+- イベントデータ: [events.json](./data/stage1/events.json)
+- インデックス用テキスト: [embed.txt](./data/stage1/embed.txt)
+- 検索クエリ用テキスト: [search.txt](./data/stage1/search.txt)
+- 検索結果: [results.json](./data/stage1/results.json)
 
 ### トークンコスト
 
@@ -58,10 +70,12 @@
 
 含める属性: **name, type, tags**
 
-### テキストデータ
+### データ
 
-- インデックス用: [embed_stage2.txt](./data/embed_stage2.txt)
-- 検索クエリ用: [search_stage2.txt](./data/search_stage2.txt)
+- イベントデータ: [events.json](./data/stage2/events.json)
+- インデックス用テキスト: [embed.txt](./data/stage2/embed.txt)
+- 検索クエリ用テキスト: [search.txt](./data/stage2/search.txt)
+- 検索結果: [results.json](./data/stage2/results.json)
 
 ### トークンコスト
 
@@ -96,10 +110,12 @@
 
 含める属性: **name, type, tags, strength**
 
-### テキストデータ
+### データ
 
-- インデックス用: [embed_stage3.txt](./data/embed_stage3.txt)
-- 検索クエリ用: [search_stage3.txt](./data/search_stage3.txt)
+- イベントデータ: [events.json](./data/stage3/events.json)
+- インデックス用テキスト: [embed.txt](./data/stage3/embed.txt)
+- 検索クエリ用テキスト: [search.txt](./data/stage3/search.txt)
+- 検索結果: [results.json](./data/stage3/results.json)
 
 ### トークンコスト
 
@@ -134,10 +150,12 @@
 
 含める属性: **name, type, tags, strength, dates**
 
-### テキストデータ
+### データ
 
-- インデックス用: [embed_stage4.txt](./data/embed_stage4.txt)
-- 検索クエリ用: [search_stage4.txt](./data/search_stage4.txt)
+- イベントデータ: [events.json](./data/stage4/events.json)
+- インデックス用テキスト: [embed.txt](./data/stage4/embed.txt)
+- 検索クエリ用テキスト: [search.txt](./data/stage4/search.txt)
+- 検索結果: [results.json](./data/stage4/results.json)
 
 ### トークンコスト
 
@@ -172,10 +190,12 @@
 
 含める属性: **name, type, tags, strength, dates, description**
 
-### テキストデータ
+### データ
 
-- インデックス用: [embed_stage5.txt](./data/embed_stage5.txt)
-- 検索クエリ用: [search_stage5.txt](./data/search_stage5.txt)
+- イベントデータ: [events.json](./data/stage5/events.json)
+- インデックス用テキスト: [embed.txt](./data/stage5/embed.txt)
+- 検索クエリ用テキスト: [search.txt](./data/stage5/search.txt)
+- 検索結果: [results.json](./data/stage5/results.json)
 
 ### トークンコスト
 
