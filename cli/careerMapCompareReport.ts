@@ -280,6 +280,43 @@ async function generateScatterCostVsAccuracy(stages: StageData[], outDir: string
   return file
 }
 
+async function generateTokenLineChart(stages: StageData[], outDir: string): Promise<string> {
+  const imagesDir = path.join(outDir, 'images')
+  fs.mkdirSync(imagesDir, { recursive: true })
+
+  const chartCanvas = new ChartJSNodeCanvas({ width: 800, height: 400, backgroundColour: 'white' })
+
+  const buf = await chartCanvas.renderToBuffer({
+    type: 'line',
+    data: {
+      labels: stages.map((s) => s.stage),
+      datasets: [{
+        label: '合計トークン数',
+        data: stages.map((s) => s.totalTokens),
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        fill: true,
+        tension: 0.2,
+        pointRadius: 6,
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+      }],
+    },
+    options: {
+      plugins: {
+        title: { display: true, text: 'ステージ別トークン消費量', font: { size: 16 } },
+        legend: { display: false },
+      },
+      scales: {
+        x: { title: { display: true, text: 'ステージ' } },
+        y: { title: { display: true, text: 'トークン数' }, beginAtZero: true },
+      },
+    },
+  })
+  const file = 'images/token-line.png'
+  fs.writeFileSync(path.join(outDir, file), buf)
+  return file
+}
+
 // ── テキストデータ書き出し ──
 
 function pickEventFields(event: CareerEvent, fields: CareerMapVectorFields): Record<string, unknown> {
@@ -322,6 +359,7 @@ function formatReport(
   stagesData: StageData[],
   histogramFiles: string[],
   boxplotFile: string,
+  tokenLineFile: string,
   scatterFile: string,
 ): string {
   const lines: string[] = []
@@ -348,11 +386,36 @@ function formatReport(
   // 箱ひげ図
   lines.push('## 全体比較（箱ひげ図）')
   lines.push('')
+  lines.push('各ステージの cosine similarity の分布を箱ひげ図で比較する。')
+  lines.push('箱は四分位範囲（Q1–Q3）、箱の中の線は中央値、ひげは外れ値を除いた最小・最大値を示す。')
+  lines.push('丸は外れ値（Q1−1.5×IQR 未満 または Q3+1.5×IQR 超）。')
+  lines.push('')
+  lines.push('**読み方:**')
+  lines.push('- 箱の位置が高い → 全体的に類似度が高く、検索精度が良い')
+  lines.push('- 箱の縦幅（IQR）やひげの長さが大きい → 類似・非類似の差が大きく、識別力がある')
+  lines.push('- IQR が小さく全体が高い位置にある → 似たスコアばかりで区別できていない可能性がある')
+  lines.push('')
   lines.push(`![箱ひげ図](./${boxplotFile})`)
+  lines.push('')
+
+  // トークン消費量
+  lines.push('## ステージ別トークン消費量')
+  lines.push('')
+  lines.push('属性を増やすとエンベディング用テキストが長くなり、トークン消費量が増加する。')
+  lines.push('このグラフはステージごとの合計トークン数の推移を示す。')
+  lines.push('')
+  lines.push(`![トークン消費量](./${tokenLineFile})`)
   lines.push('')
 
   // コスト vs 精度
   lines.push('## トークンコスト vs 平均類似度')
+  lines.push('')
+  lines.push('横軸にトークンコスト、縦軸に平均類似度をとった散布図。')
+  lines.push('')
+  lines.push('**読み方:**')
+  lines.push('- 平均類似度が高い（上にある）ほど検索精度が良い')
+  lines.push('- 左上が理想（低コストで高精度）')
+  lines.push('- 右に行くほどコストが高い。コスト増に見合う精度向上がなければ、そのステージは過剰')
   lines.push('')
   lines.push(`![コスト vs 精度](./${scatterFile})`)
   lines.push('')
@@ -521,9 +584,10 @@ async function main() {
   console.log('チャート生成中...')
   const histogramFiles = await generateHistograms(stagesData, outDir)
   const boxplotFile = await generateBoxplot(stagesData, outDir)
+  const tokenLineFile = await generateTokenLineChart(stagesData, outDir)
   const scatterFile = await generateScatterCostVsAccuracy(stagesData, outDir)
 
-  const report = formatReport(opts.name, stagesData, histogramFiles, boxplotFile, scatterFile)
+  const report = formatReport(opts.name, stagesData, histogramFiles, boxplotFile, tokenLineFile, scatterFile)
 
   fs.writeFileSync(outFile, report, 'utf-8')
   console.log(`\nレポート出力: ${outFile}`)

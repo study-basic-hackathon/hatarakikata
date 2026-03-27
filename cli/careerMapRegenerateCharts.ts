@@ -272,6 +272,43 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
   return file
 }
 
+async function generateTokenLineChart(stages: StageData[], outDir: string): Promise<string> {
+  const imagesDir = path.join(outDir, 'images')
+  fs.mkdirSync(imagesDir, { recursive: true })
+
+  const chartCanvas = new ChartJSNodeCanvas({ width: 800, height: 400, backgroundColour: 'white' })
+
+  const buf = await chartCanvas.renderToBuffer({
+    type: 'line',
+    data: {
+      labels: stages.map((s) => s.stage),
+      datasets: [{
+        label: '合計トークン数',
+        data: stages.map((s) => s.totalTokens),
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        fill: true,
+        tension: 0.2,
+        pointRadius: 6,
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+      }],
+    },
+    options: {
+      plugins: {
+        title: { display: true, text: 'ステージ別トークン消費量', font: { size: 16 } },
+        legend: { display: false },
+      },
+      scales: {
+        x: { title: { display: true, text: 'ステージ' } },
+        y: { title: { display: true, text: 'トークン数' }, beginAtZero: true },
+      },
+    },
+  })
+  const file = 'images/token-line.png'
+  fs.writeFileSync(path.join(outDir, file), buf)
+  return file
+}
+
 // ── メイン ──
 
 async function main() {
@@ -286,6 +323,7 @@ async function main() {
   console.log('チャート生成中...')
   await generateHistograms(stages, reportDir)
   await generateBoxplot(stages, reportDir)
+  await generateTokenLineChart(stages, reportDir)
 
   console.log('完了')
 }
