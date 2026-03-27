@@ -15,6 +15,7 @@
     "career-map:embed": "tsx cli/careerMapEmbed.ts",
     "career-map:search": "tsx cli/careerMapSearch.ts",
     "career-map:compare": "tsx cli/careerMapCompare.ts",
+    "career-map:compare-report": "tsx cli/careerMapCompareReport.ts",
     "seed": "tsx cli/seed.ts"
   },
   "dependencies": {

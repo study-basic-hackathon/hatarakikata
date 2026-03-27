@@ -10,6 +10,7 @@ import type {
   MatchCareerMapVectorsQuery,
   UpsertCareerMapVectorCommand,
 } from "@/core/application/port"
+import type { CareerEvent } from "@/core/domain/entity/careerEvent"
 import { buildCareerMapVectorData, STAGE_PRESETS, type CareerMapVectorEncoding, type CareerMapVectorFields } from "@/core/domain/service/careerMap"
 import { type AppResult, failAsForbiddenError, failAsInvalidParametersError, failAsNotFoundError, succeed } from "@/core/util"
 
@@ -19,6 +20,7 @@ const CompareCareerMapEncodingsParametersSchema = z.object({
   userName: z.string().min(1),
   limit: z.number().int().min(1).max(50).default(5),
   stages: z.array(z.string()).default(stageNames),
+  encodings: z.array(z.enum(["toon", "natural"])).min(1).default(["toon", "natural"]),
 })
 
 export type CompareCareerMapEncodingsParametersInput = z.input<typeof CompareCareerMapEncodingsParametersSchema>
@@ -46,6 +48,7 @@ export type QuadrantResult = {
 
 type CompareCareerMapEncodingsResult = {
   quadrants: QuadrantResult[]
+  targetEvents: CareerEvent[]
 }
 
 export type CompareCareerMapEncodingsUsecase = (
@@ -100,7 +103,12 @@ export function makeCompareCareerMapEncodings({
     const mapIdsResult = await listAllCareerMapIdsQuery()
     if (!mapIdsResult.success) return mapIdsResult
 
-    const encodings: CareerMapVectorEncoding[] = ["toon", "natural"]
+    // 対象ユーザーのイベントデータ取得
+    const targetEventsResult = await listCareerEventsForVectorQuery(careerMapId)
+    if (!targetEventsResult.success) return targetEventsResult
+    const targetEvents = targetEventsResult.data
+
+    const encodings: CareerMapVectorEncoding[] = parameters.encodings
     const quadrants: QuadrantResult[] = []
 
     const stages = parameters.stages
@@ -183,6 +191,6 @@ export function makeCompareCareerMapEncodings({
       }
     }
 
-    return succeed({ quadrants })
+    return succeed({ quadrants, targetEvents })
   }
 }

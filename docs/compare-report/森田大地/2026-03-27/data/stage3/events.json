@@ -1,0 +1,150 @@
+[
+  {
+    "name": "パソコン自作への目覚め",
+    "type": "living",
+    "tags": [
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "中学進学",
+    "type": "living",
+    "tags": [
+      "在学"
+    ],
+    "strength": 1
+  },
+  {
+    "name": "Scratchでプログラミング体験",
+    "type": "living",
+    "tags": [
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "高校進学",
+    "type": "living",
+    "tags": [
+      "在学"
+    ],
+    "strength": 1
+  },
+  {
+    "name": "Pythonでプログラミング独学開始",
+    "type": "working",
+    "tags": [
+      "挑戦",
+      "成長"
+    ],
+    "strength": 3
+  },
+  {
+    "name": "Webアプリ個人開発",
+    "type": "working",
+    "tags": [
+      "挑戦",
+      "成長"
+    ],
+    "strength": 3
+  },
+  {
+    "name": "大学受験",
+    "type": "living",
+    "tags": [
+      "受験",
+      "挑戦"
+    ],
+    "strength": 3
+  },
+  {
+    "name": "大学進学（東京）",
+    "type": "living",
+    "tags": [
+      "在学"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "プログラミングサークルで切磋琢磨",
+    "type": "living",
+    "tags": [
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "ハッカソン参加",
+    "type": "working",
+    "tags": [
+      "挑戦",
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "コーヒードリップの趣味",
+    "type": "living",
+    "tags": [],
+    "strength": 1
+  },
+  {
+    "name": "Webスタートアップでインターン",
+    "type": "working",
+    "tags": [
+      "成長"
+    ],
+    "strength": 3
+  },
+  {
+    "name": "インターンで信頼を獲得",
+    "type": "working",
+    "tags": [
+      "成長",
+      "達成感"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "就職活動",
+    "type": "working",
+    "tags": [
+      "挑戦"
+    ],
+    "strength": 3
+  },
+  {
+    "name": "新卒入社・バックエンドチーム配属",
+    "type": "working",
+    "tags": [
+      "在職"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "本番障害対応の経験",
+    "type": "working",
+    "tags": [
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "小さな機能の設計を一人で担当",
+    "type": "working",
+    "tags": [
+      "在職",
+      "成長"
+    ],
+    "strength": 2
+  },
+  {
+    "name": "将来のキャリアへの模索",
+    "type": "feeling",
+    "tags": [
+      "成長"
+    ],
+    "strength": 2
+  }
+]

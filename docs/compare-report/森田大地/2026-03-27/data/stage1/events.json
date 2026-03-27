@@ -1,0 +1,74 @@
+[
+  {
+    "name": "パソコン自作への目覚め",
+    "type": "living"
+  },
+  {
+    "name": "中学進学",
+    "type": "living"
+  },
+  {
+    "name": "Scratchでプログラミング体験",
+    "type": "living"
+  },
+  {
+    "name": "高校進学",
+    "type": "living"
+  },
+  {
+    "name": "Pythonでプログラミング独学開始",
+    "type": "working"
+  },
+  {
+    "name": "Webアプリ個人開発",
+    "type": "working"
+  },
+  {
+    "name": "大学受験",
+    "type": "living"
+  },
+  {
+    "name": "大学進学（東京）",
+    "type": "living"
+  },
+  {
+    "name": "プログラミングサークルで切磋琢磨",
+    "type": "living"
+  },
+  {
+    "name": "ハッカソン参加",
+    "type": "working"
+  },
+  {
+    "name": "コーヒードリップの趣味",
+    "type": "living"
+  },
+  {
+    "name": "Webスタートアップでインターン",
+    "type": "working"
+  },
+  {
+    "name": "インターンで信頼を獲得",
+    "type": "working"
+  },
+  {
+    "name": "就職活動",
+    "type": "working"
+  },
+  {
+    "name": "新卒入社・バックエンドチーム配属",
+    "type": "working"
+  },
+  {
+    "name": "本番障害対応の経験",
+    "type": "working"
+  },
+  {
+    "name": "小さな機能の設計を一人で担当",
+    "type": "working"
+  },
+  {
+    "name": "将来のキャリアへの模索",
+    "type": "feeling"
+  }
+]

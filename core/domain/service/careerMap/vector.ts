@@ -34,8 +34,10 @@ const ALL_FIELDS: Required<CareerMapVectorFields> = {
 
 export const STAGE_PRESETS: Record<string, CareerMapVectorFields> = {
   stage1: { name: true, type: true },
-  stage2: { name: true, type: true, tags: true, strength: true },
-  stage3: { name: true, type: true, tags: true, strength: true, description: true, dates: true },
+  stage2: { name: true, type: true, tags: true },
+  stage3: { name: true, type: true, tags: true, strength: true },
+  stage4: { name: true, type: true, tags: true, strength: true, dates: true },
+  stage5: { name: true, type: true, tags: true, strength: true, dates: true, description: true },
 }
 
 function computeTagWeights(events: CareerEvent[]): Record<string, number> {

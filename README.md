@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hatarakikata（働き方）
 
-## Getting Started
+キャリアジャーニーの可視化と AI によるキャリアガイダンスを提供する Web アプリケーション。
 
-First, run the development server:
+## 技術スタック
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| カテゴリ | 技術 |
+|---------|------|
+| フレームワーク | Next.js 16 (App Router) |
+| 言語 | TypeScript 5 |
+| スタイリング | Tailwind CSS 4 |
+| データベース | PostgreSQL (Supabase) |
+| ORM | Drizzle ORM |
+| 認証 | Supabase SSR |
+| AI | OpenAI API (GPT, Embeddings) |
+| 状態管理 | TanStack React Query |
+| フォーム | React Hook Form + Zod |
+
+## 主な機能
+
+- **キャリアマップ作成** — 自分のキャリアジャーニーをタイムラインとして記録
+- **キャリアイベント管理** — キャリアの転機やマイルストーンを登録・編集
+- **AI キャリアガイド** — OpenAI を活用したキャリアアドバイスの生成
+- **類似キャリア検索** — ベクトル埋め込みによる類似キャリアパスのマッチング
+- **キャリア質問** — キャリアに関するアセスメント機能
+- **クレジット・プラン管理** — サブスクリプションベースのアクセス制御
+
+## プロジェクト構成
+
+```
+├── app/                    # Next.js App Router（ページ・API・Server Actions）
+│   ├── (authorized)/       #   認証済みユーザー向けページ
+│   ├── (guest)/            #   ゲスト向けページ（ログイン・サインアップ等）
+│   ├── api/                #   API エンドポイント
+│   └── actions/            #   Server Actions
+├── core/                   # ドメイン層（DDD）
+│   ├── domain/             #   エンティティ・値オブジェクト・ドメインサービス
+│   ├── application/        #   ユースケース・アプリケーションサービス
+│   ├── error/              #   カスタムエラー
+│   └── util/               #   ユーティリティ
+├── infrastructure/         # インフラ層（外部連携・データアクセス）
+│   ├── server/drizzle/     #   DB スキーマ・クエリ・コマンド
+│   ├── server/ai/          #   OpenAI 連携
+│   ├── server/supabase/    #   Supabase 認証・ストレージ
+│   └── browser/            #   ブラウザ側アダプタ
+├── server/                 # サーバーサイドユーティリティ
+├── ui/                     # フロントエンド（コンポーネント・フック・プロバイダ）
+├── cli/                    # CLI コマンド（データ管理）
+├── data/                   # シードデータ（サンプルプロフィール・ストーリー）
+└── docs/                   # ドキュメント・分析レポート
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## セットアップ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 前提条件
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js
+- PostgreSQL（Supabase）
+- OpenAI API キー
 
-## Learn More
+### 環境変数
 
-To learn more about Next.js, take a look at the following resources:
+`.env` ファイルに以下を設定:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+DATABASE_URL=
+OPENAI_API_KEY=
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 開発サーバーの起動
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+http://localhost:3000 でアクセス。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## CLI コマンド
+
+```bash
+npm run seed                  # データベースにサンプルデータを投入
+npm run import-users          # ユーザーデータのインポート
+npm run import-users:all      # 全ユーザーデータのインポート
+npm run delete-users          # 指定ユーザーの削除
+npm run delete-users:all      # 全ユーザーの削除
+npm run career-map:embed      # キャリアマップのベクトル埋め込み生成
+npm run career-map:search     # 類似キャリアマップの検索
+npm run career-map:compare    # キャリアマップの比較分析
+npm run readjust-rows         # データベース行の調整
+```
