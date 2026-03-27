@@ -132,12 +132,27 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
   const labels = stages.map((s) => `${s.stage}\n(${s.totalTokens.toLocaleString()} tokens)`)
   const statsArr = stages.map((s) => descriptiveStats(s.similarities))
 
-  // floating bar で IQR (Q1–Q3) を表現し、中央値を赤い線で描画
+  // Y軸の範囲をデータに合わせる
+  const allMin = Math.min(...statsArr.map((s) => s.min))
+  const allMax = Math.max(...statsArr.map((s) => s.max))
+  const yMin = Math.floor(allMin / 5) * 5 // 5刻みで切り下げ
+  const yMax = Math.ceil(allMax / 5) * 5   // 5刻みで切り上げ
+
+  // whisker: min–Q1 と Q3–max を細いバーで表現
   const buf = await chartCanvas.renderToBuffer({
     type: 'bar',
     data: {
       labels,
       datasets: [
+        {
+          label: 'ひげ (min–max)',
+          data: statsArr.map((s) => [s.min, s.max] as [number, number]),
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          borderColor: 'rgba(100, 100, 100, 1)',
+          borderWidth: 1,
+          barPercentage: 0.08,
+          order: 3,
+        },
         {
           label: 'IQR (Q1–Q3)',
           data: statsArr.map((s) => [s.q1, s.q3] as [number, number]),
@@ -145,6 +160,7 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
           borderColor: COLORS,
           borderWidth: 2,
           barPercentage: 0.5,
+          order: 2,
         },
         {
           label: '中央値',
@@ -153,6 +169,7 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
           borderColor: 'rgba(255, 99, 132, 1)',
           borderWidth: 0,
           barPercentage: 0.5,
+          order: 1,
         },
       ],
     },
@@ -164,6 +181,8 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
       },
       scales: {
         y: {
+          min: yMin,
+          max: yMax,
           title: { display: true, text: 'cosine similarity (%)' },
         },
       },
