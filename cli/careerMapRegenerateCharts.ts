@@ -37,8 +37,13 @@ function descriptiveStats(arr: number[]) {
   const min = sorted[0]
   const max = sorted[sorted.length - 1]
   const std = Math.sqrt(arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length)
-  const outliers = arr.filter((v) => v < q1 - 1.5 * iqr || v > q3 + 1.5 * iqr)
-  return { min, max, mean, std, q1, q2, q3, iqr, outliers }
+  const lowerFence = q1 - 1.5 * iqr
+  const upperFence = q3 + 1.5 * iqr
+  const outliers = arr.filter((v) => v < lowerFence || v > upperFence)
+  // ひげの端: 外れ値を除いた実データの min/max
+  const whiskerMin = Math.min(...arr.filter((v) => v >= lowerFence))
+  const whiskerMax = Math.max(...arr.filter((v) => v <= upperFence))
+  return { min, max, mean, std, q1, q2, q3, iqr, outliers, whiskerMin, whiskerMax }
 }
 
 // ── データ読み込み ──
@@ -154,23 +159,23 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
   const boxplotPlugin = {
     id: 'boxplotDrawer',
     afterDatasetsDraw(chart: { ctx: CanvasRenderingContext2D; chartArea: { left: number; right: number; top: number; bottom: number }; scales: Record<string, { getPixelForValue: (v: number) => number }> }) {
-      const { ctx, chartArea, scales } = chart
+      const { ctx, scales } = chart
+      const xScale = scales['x']
       const yScale = scales['y']
       const count = stages.length
-      const totalWidth = chartArea.right - chartArea.left
-      const groupWidth = totalWidth / count
-      const boxWidth = groupWidth * 0.5
+      // category スケールから各ラベルの中心ピクセルを取得
+      const boxWidth = 60
 
       for (let i = 0; i < count; i++) {
         const s = statsArr[i]
-        const centerX = chartArea.left + groupWidth * (i + 0.5)
+        const centerX = xScale.getPixelForValue(i)
         const halfBox = boxWidth / 2
 
         const yQ1 = yScale.getPixelForValue(s.q1)
         const yQ3 = yScale.getPixelForValue(s.q3)
         const yMedian = yScale.getPixelForValue(s.q2)
-        const yMinVal = yScale.getPixelForValue(s.min)
-        const yMaxVal = yScale.getPixelForValue(s.max)
+        const yMinVal = yScale.getPixelForValue(s.whiskerMin)
+        const yMaxVal = yScale.getPixelForValue(s.whiskerMax)
 
         const color = COLORS[i % COLORS.length]
 
@@ -242,11 +247,15 @@ async function generateBoxplot(stages: StageData[], outDir: string): Promise<str
         title: { display: true, text: 'Stage 別 類似度分布（箱ひげ図）', font: { size: 18 } },
         legend: { display: false },
       },
+      layout: {
+        padding: { left: 20, right: 20 },
+      },
       scales: {
         x: {
           type: 'category',
           labels: stages.map((s) => s.stage),
           grid: { display: false },
+          offset: true,
         },
         y: {
           min: yMin,
