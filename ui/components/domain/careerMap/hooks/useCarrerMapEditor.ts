@@ -40,6 +40,7 @@ export type UseCarrerMapEditorOptions = {
 
 export type CarrerMapEditorStoreState = {
   status: CarrerMapEditorStatus
+  isFetching: boolean
   careerMapId: string
   careerMap: CareerMap | undefined
   events: CareerEvent[]
@@ -150,9 +151,15 @@ export function useCarrerMapEditor(options: UseCarrerMapEditorOptions): CarrerMa
   const { handleDragStart, handleDragMove, handleDragEnd } =
     useDragInteraction(timelineConfig, scale, dispatch, handleDragUpdate)
 
+  const isFetching =
+    careerMapQuery.isFetching ||
+    careerEventsQuery.isFetching ||
+    questionsQuery.isFetching
+
   return {
     state: {
       status,
+      isFetching,
       careerMapId,
       careerMap,
       events: editorState.events,

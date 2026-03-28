@@ -27,6 +27,7 @@ import CarrerMapCanvas from "./CarrerMapCanvas"
 import CarrerMapCanvasActions from "./CarrerMapCanvasActions"
 import CarrerMapCanvasPlaceholder from "./CarrerMapCanvasPlaceholder"
 import CarrerMapEditorContainer from "./CarrerMapEditorContainer"
+import CarrerMapFetchingIndicator from "./CarrerMapFetchingIndicator"
 import { CarrerMapEditorProvider } from "./CarrerMapEditorProvider"
 import CarrerMapErrorBanner from "./CarrerMapErrorBanner"
 import CarrerMapRequestBirthdayDialog from "./CarrerMapRequestBirthdayDialog"
@@ -110,6 +111,7 @@ export default function CarrerMapEditor({ careerMapId }: CareerMapEditorProps) {
         ) : (
           <CarrerMapCanvasPlaceholder />
         )}
+        <CarrerMapFetchingIndicator visible={editor.state.isFetching && editor.state.status === 'ready'} />
       </CarrerMapEditorContainer>
 
       <CarrerMapErrorBanner />
