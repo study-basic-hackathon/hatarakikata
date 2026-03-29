@@ -35,7 +35,8 @@
       "Bash(sips -g space app/favicon.ico)",
       "Bash(npx supabase db dump)",
       "Bash(cat \"/Users/seekseep/Development/github.com/study-basic-hackathon/hatarakikata/app/\\(authorized\\)/layout.tsx\")",
-      "Bash(cat \"/Users/seekseep/Development/github.com/study-basic-hackathon/hatarakikata/app/\\(guest\\)/layout.tsx\")"
+      "Bash(cat \"/Users/seekseep/Development/github.com/study-basic-hackathon/hatarakikata/app/\\(guest\\)/layout.tsx\")",
+      "Bash(vercel --version)"
     ]
   }
 }

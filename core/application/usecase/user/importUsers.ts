@@ -1,4 +1,5 @@
-import { randomBytes, randomUUID } from "crypto"
+import { randomBytes } from "crypto"
+import pLimit from "p-limit"
 
 import type { Executor } from "@/core/application/executor"
 import type {
@@ -8,7 +9,7 @@ import type {
   CreateCreditTransactionCommand,
   CreateMembershipCommand,
   CreateUserCommand,
-  DeleteAuthUserByEmailCommand,
+  DeleteAuthUserByIdCommand,
   DeleteUserCommand,
   WriteUserCredentialsCommand,
 } from "@/core/application/port/command"
@@ -37,7 +38,7 @@ export type MakeImportUsersDependencies = {
   writeUserCredentialsCommand: WriteUserCredentialsCommand
   findUserByNameQuery: FindUserByNameQuery
   deleteUserCommand: DeleteUserCommand
-  deleteAuthUserByEmailCommand: DeleteAuthUserByEmailCommand
+  deleteAuthUserByIdCommand: DeleteAuthUserByIdCommand
   createAuthUserCommand: CreateAuthUserCommand
   createUserCommand: CreateUserCommand
   createMembershipCommand: CreateMembershipCommand
@@ -49,8 +50,9 @@ export type MakeImportUsersDependencies = {
   onLog?: (message: string) => void
 }
 
-function generateEmail(): string {
-  return `${randomUUID()}@example.com`
+function generateEmail(index: number): string {
+  const num = String(index + 1).padStart(2, '0')
+  return `user${num}@example.com`
 }
 
 function generatePassword(): string {
@@ -70,7 +72,7 @@ export function makeImportUsers({
   writeUserCredentialsCommand,
   findUserByNameQuery,
   deleteUserCommand,
-  deleteAuthUserByEmailCommand,
+  deleteAuthUserByIdCommand,
   createAuthUserCommand,
   createUserCommand,
   createMembershipCommand,
@@ -96,14 +98,16 @@ export function makeImportUsers({
     let failed = 0
     const credentials: { name: string; email: string; password: string }[] = []
 
-    for (const filePath of filePaths) {
+    const limit = pLimit(5)
+
+    await Promise.all(filePaths.map((filePath, i) => limit(async () => {
       try {
         // 1. スナップショット読み込み
         const snapshotResult = await readCareerMapSnapshotQuery(filePath)
         if (!snapshotResult.success) throw new Error(snapshotResult.error.message)
         const snapshot = snapshotResult.data
 
-        const email = generateEmail()
+        const email = generateEmail(i)
 
         // 2. 既存ユーザーの確認と削除
         const existingUserResult = await findUserByNameQuery(snapshot.personName)
@@ -111,11 +115,12 @@ export function makeImportUsers({
 
         if (existingUserResult.data) {
           onLog?.(`[削除] 既存ユーザー "${snapshot.personName}" を削除します`)
+          const existingUserId = existingUserResult.data.id
           // DB削除（CASCADE で関連データも削除）
-          const deleteResult = await deleteUserCommand({ id: existingUserResult.data.id })
+          const deleteResult = await deleteUserCommand({ id: existingUserId })
           if (!deleteResult.success) throw new Error(deleteResult.error.message)
-          // Auth削除
-          await deleteAuthUserByEmailCommand({ email })
+          // Auth削除（DBのuser.id = Supabase AuthのユーザーID）
+          await deleteAuthUserByIdCommand({ id: existingUserId })
         }
 
         // 3. Auth ユーザー作成
@@ -188,7 +193,7 @@ export function makeImportUsers({
         failed++
       }
       onProgress?.(imported + failed, total, failed)
-    }
+    })))
 
     // 認証情報をファイルに書き出し
     if (credentials.length > 0) {

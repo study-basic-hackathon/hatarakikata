@@ -71,4 +71,4 @@ async function main() {
   console.log(`Done: ${result.data.processed} processed, ${result.data.failed} failed (encoding: ${encoding})`)
 }
 
-main()
+main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1) })

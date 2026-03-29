@@ -1,6 +1,6 @@
 import { makeImportUsers } from '@/core/application/usecase/user/importUsers'
 import { createAuthUserCommand } from '@/infrastructure/server/drizzle/command/auth/createAuthUserCommand'
-import { deleteAuthUserByEmailCommand } from '@/infrastructure/server/drizzle/command/auth/deleteAuthUserByEmailCommand'
+import { deleteAuthUserByIdCommand } from '@/infrastructure/server/drizzle/command/auth/deleteAuthUserByIdCommand'
 import { createCareerEventCommand } from '@/infrastructure/server/drizzle/command/careerEvent/createCareerEventCommand'
 import { createCareerMapCommand } from '@/infrastructure/server/drizzle/command/careerMap/createCareerMapCommand'
 import { createCreditTransactionCommand } from '@/infrastructure/server/drizzle/command/credit/createCreditTransactionCommand'
@@ -21,7 +21,7 @@ export function createImportUsers(
     writeUserCredentialsCommand,
     findUserByNameQuery,
     deleteUserCommand,
-    deleteAuthUserByEmailCommand,
+    deleteAuthUserByIdCommand,
     createAuthUserCommand,
     createUserCommand,
     createMembershipCommand,

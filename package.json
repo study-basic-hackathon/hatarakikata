@@ -13,6 +13,8 @@
     "import-users:all": "tsx cli/importUsers.ts --all",
     "readjust-rows": "tsx cli/readjustRows.ts",
     "career-map:embed": "tsx cli/careerMapEmbed.ts",
+    "career-map:embed:toon": "tsx cli/careerMapEmbed.ts -e toon",
+    "career-map:embed:natural": "tsx cli/careerMapEmbed.ts -e natural",
     "career-map:search": "tsx cli/careerMapSearch.ts",
     "career-map:compare": "tsx cli/careerMapCompare.ts",
     "career-map:compare-report": "tsx cli/careerMapCompareReport.ts",

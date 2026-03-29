@@ -7,7 +7,7 @@ export const updateEmail: UpdateEmail = async ({ email }) => {
   const supabase = getSupabaseBrowserClient()
   const { error } = await supabase.auth.updateUser(
     { email },
-    { emailRedirectTo: `${window.location.origin}/api/auth/confirm` },
+    { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin}/api/auth/confirm` },
   )
   if (error) return failAsExternalServiceError(error.message, error)
 
