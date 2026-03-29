@@ -11,6 +11,21 @@ import TextField from '@/ui/components/basic/field/TextField'
 import { useSignUpMutation } from '@/ui/hooks/auth'
 import { type SignUpParameters,SignUpParametersSchema } from '@/ui/service/auth'
 
+const signUpErrorMessages: Record<string, string> = {
+  over_email_send_rate_limit: 'メールの送信回数が上限に達しました。しばらく時間をおいてから再度お試しください。',
+  user_already_exists: 'このメールアドレスはすでに登録されています。',
+  weak_password: 'パスワードが脆弱です。より強力なパスワードを設定してください。',
+  validation_failed: '入力内容が正しくありません。確認してください。',
+  signup_disabled: '現在、新規登録は受け付けていません。',
+  over_request_rate_limit: 'リクエストが多すぎます。しばらく時間をおいてから再度お試しください。',
+}
+
+function getSignUpErrorMessage(error: Error): string {
+  const code = (error.cause as { code?: string })?.code
+  if (code && code in signUpErrorMessages) return signUpErrorMessages[code]
+  return 'サインアップに失敗しました。入力内容を確認してください。'
+}
+
 export default function SignupPage() {
   const router = useRouter()
   const signupMutation = useSignUpMutation()
@@ -31,7 +46,7 @@ export default function SignupPage() {
 
         {signupMutation.isError && (
           <Alert variant="error">
-            サインアップに失敗しました。入力内容を確認してください。
+            {getSignUpErrorMessage(signupMutation.error)}
           </Alert>
         )}
 

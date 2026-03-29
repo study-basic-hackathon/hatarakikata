@@ -51,7 +51,7 @@ export function useSignUpMutation() {
   return useMutation({
     mutationFn: async (input: SignUpParametersInput) => {
       const result = await signUp(input)
-      if (!result.success) throw new Error(result.error.message)
+      if (!result.success) throw new Error(result.error.message, { cause: result.error.cause })
       return result.data
     },
   })
